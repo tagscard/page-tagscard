@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parabéns! | Tagscard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #050505;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .success-card {
+            max-width: 500px;
+            padding: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,105,0,0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(255,105,0,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,105,0,0); }
+        }
+
+        h1 { margin-bottom: 15px; }
+        p { color: var(--text-muted); margin-bottom: 30px; line-height: 1.6; }
+
+        .steps { text-align: left; margin-bottom: 40px; }
+        .step-item { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; }
+        .step-num { 
+            width: 24px; height: 24px; background: rgba(255,255,255,0.1); 
+            border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-card">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        <h1>Parabéns, <span id="user-name">Cliente</span>!</h1>
+        <p>Seu pagamento foi aprovado e você agora faz parte do futuro do networking. Vamos configurar o seu cartão?</p>
+
+        <div class="steps">
+            <div class="step-item">
+                <div class="step-num">1</div>
+                <span>Configure sua bio e redes sociais em menos de 2 minutos.</span>
+            </div>
+            <div class="step-item">
+                <div class="step-num">2</div>
+                <span>Seu cartão físico será enviado para o endereço de cadastro.</span>
+            </div>
+            <div class="step-item">
+                <div class="step-num">3</div>
+                <span>Use o QR Code digital enquanto seu cartão não chega!</span>
+            </div>
+        </div>
+
+        <a href="edit-profile.html" class="btn btn-primary" style="width: 100%; justify-content: center;">
+            Personalizar Meu Perfil Agora
+        </a>
+    </div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-client.js"></script>
+
+    <script>
+        async function loadUserName() {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (session) {
+                const { data: profile } = await window.supabaseClient
+                    .from('profiles')
+                    .select('name')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (profile && profile.name) {
+                    document.getElementById('user-name').innerText = profile.name.split(' ')[0];
+                }
+            }
+        }
+        loadUserName();
+    </script>
+</body>
+</html>

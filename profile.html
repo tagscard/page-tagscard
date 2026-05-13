@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil Digital | Tagscard</title>
+    <link rel="stylesheet" href="profile.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Barra de Administração (Flutuante) -->
+    <div id="admin-toolbar" class="admin-toolbar" style="display: none;">
+        <span><i class="fas fa-user-cog"></i> Modo Edição</span>
+        <div class="admin-actions">
+            <a href="edit-profile.html" class="edit-btn"><i class="fas fa-edit"></i> Editar</a>
+            <button onclick="logout()" class="logout-btn">Sair</button>
+        </div>
+    </div>
+
+    <!-- Header / Sidebar (Estilo iPortfolio) -->
+    <header id="sidebar" class="sidebar">
+        <div class="profile-info">
+            <div class="profile-img">
+                <img id="display-avatar-sidebar" src="https://ui-avatars.com/api/?name=Seu+Nome&background=ff6900&color=fff&size=128" alt="Avatar">
+            </div>
+            <h1 id="display-name-sidebar">Seu Nome Aqui</h1>
+            <div class="social-links">
+                <a href="#" id="side-instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" id="side-linkedin"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" id="side-whatsapp"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <ul>
+                <li><a href="#hero" class="nav-link active"><i class="fas fa-home"></i> <span>Início</span></a></li>
+                <li><a href="#about" class="nav-link"><i class="fas fa-user"></i> <span>Sobre</span></a></li>
+                <li><a href="#services" class="nav-link"><i class="fas fa-briefcase"></i> <span>Serviços</span></a></li>
+                <li><a href="#pix" class="nav-link"><i class="fas fa-qrcode"></i> <span>Pagamento</span></a></li>
+            </ul>
+        </nav>
+
+        <footer class="sidebar-footer">
+            <div id="share-profile-container" style="padding: 20px 15px;">
+                <button onclick="openShareModal()" class="btn-share-sidebar">
+                    <i class="fas fa-share-alt"></i> Compartilhar Perfil
+                </button>
+            </div>
+            <div class="sidebar-logo">
+                <img src="assets/logo.png" alt="Tagscard Logo" style="height: 65px;">
+            </div>
+            <div class="manage-link">
+                <a href="login.html">Gerenciar Perfil</a>
+            </div>
+        </footer>
+    </header>
+
+    <!-- Conteúdo Principal -->
+    <main id="main-content" class="main-content">
+        
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section">
+            <div class="hero-container">
+                <h2 id="display-name-hero">Seu Nome Aqui</h2>
+                <p>Eu sou <span class="typed" data-typed-items=""></span></p>
+                <div class="hero-actions">
+                    <button class="btn-vcard-premium" id="save-vcard">
+                        <i class="fas fa-address-book"></i> SALVAR NA AGENDA
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div class="content-container">
+            <!-- Sobre / Bio -->
+            <section id="about" class="content-section">
+                <h3 class="section-title">Sobre</h3>
+                <p id="display-bio" class="profile-bio">Especialista em Tecnologia | Empreendedor</p>
+            </section>
+
+            <!-- Serviços -->
+            <section id="services" class="content-section">
+                <h3 class="section-title">Serviços</h3>
+                <div class="services-grid">
+                    <div class="service-mini-card"><i class="fas fa-code"></i><span>Dev</span></div>
+                    <div class="service-mini-card"><i class="fas fa-paint-brush"></i><span>Design</span></div>
+                    <div class="service-mini-card"><i class="fas fa-chart-line"></i><span>Marketing</span></div>
+                </div>
+            </section>
+
+            <!-- Pagamento -->
+            <section id="pix" class="content-section">
+                <h3 class="section-title">Pagamento via PIX</h3>
+                <div id="section-pix" class="pix-box card">
+                    <a href="index.html" class="tagscard-badge">
+                        <span>Criado com</span>
+                        <img src="assets/logo.png" alt="Tagscard Logo" style="height: 20px; margin-left: 5px;">
+                    </a>
+                    <div class="pix-key-box">
+                        <span id="pix-key">...</span>
+                        <div class="pix-actions">
+                            <button class="copy-btn" onclick="copyPixKey()">
+                                <i class="far fa-copy"></i> Copiar
+                            </button>
+                            <button class="qr-btn" onclick="generateQRCode()">
+                                <i class="fas fa-qrcode"></i> QR Code PIX
+                            </button>
+                        </div>
+                    </div>
+                    <div id="qrcode-container" style="display:none; text-align:center; margin-top: 20px; padding: 20px; background: white; border-radius: 15px;">
+                        <img id="qrcode-img" src="" style="width: 200px; height: 200px;">
+                        <p style="color: black; margin-top: 10px; font-weight: 600;">Aponte a câmera para pagar</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Modal de Compartilhamento (QR Code do Perfil) -->
+        <div id="share-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeShareModal()">&times;</span>
+                <h3>Meu Perfil Digital</h3>
+                <p>Aponte a câmera para salvar meu contato</p>
+                <div id="profile-qrcode" class="qrcode-wrapper">
+                    <img id="profile-qr-img" src="" alt="QR Code do Perfil">
+                </div>
+                <div class="share-actions">
+                    <button onclick="copyProfileLink()" class="btn-copy-link">
+                        <i class="fas fa-link"></i> Copiar Link do Perfil
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão Flutuante (Mobile) -->
+        <button class="fab-share" onclick="openShareModal()">
+            <i class="fas fa-qrcode"></i>
+        </button>
+    </main>
+
+    <div id="toast" class="toast">Copiado com sucesso!</div>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+
+    <script>
+        // Carregar dados dinâmicos do Supabase
+        async function loadProfileData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let profileId = urlParams.get('id');
+            
+            // Verificar se o usuário está logado
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            
+            if (!profileId && session) {
+                profileId = session.user.id;
+            }
+
+            if (!profileId) {
+                document.body.innerHTML = '<div style="color: white; text-align: center; padding: 100px; font-family: Inter, sans-serif;"><h2>Perfil não encontrado</h2><p>ID de acesso inválido.</p><a href="index.html" style="color: #ff6900;">Voltar ao início</a></div>';
+                return;
+            }
+
+            const { data: profile, error } = await window.supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', profileId)
+                .single();
+
+            if (error || !profile) {
+                document.body.innerHTML = '<div style="color: white; text-align: center; padding: 100px; font-family: Inter, sans-serif;"><h2>Perfil não encontrado</h2><p>Este perfil ainda não foi configurado.</p></div>';
+                return;
+            }
+
+            // Aplicar Dados
+            const nameElements = ['display-name-sidebar', 'display-name-hero'];
+            nameElements.forEach(id => {
+                if (profile.name) document.getElementById(id).innerText = profile.name;
+            });
+
+            if (profile.bio) document.getElementById('display-bio').innerText = profile.bio;
+            if (profile.avatar_url) document.getElementById('display-avatar-sidebar').src = profile.avatar_url;
+            
+            if (profile.hero_url) {
+                document.getElementById('hero').style.backgroundImage = `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('${profile.hero_url}')`;
+            }
+            
+            if (profile.theme_color) {
+                document.documentElement.style.setProperty('--primary', profile.theme_color);
+            }
+
+            const links = profile.social_links || {};
+            if (links.whatsapp) document.getElementById('side-whatsapp').href = `https://wa.me/${links.whatsapp}`;
+            if (links.instagram) document.getElementById('side-instagram').href = `https://instagram.com/${links.instagram.replace('@', '')}`;
+            if (links.linkedin) document.getElementById('side-linkedin').href = links.linkedin.startsWith('http') ? links.linkedin : `https://${links.linkedin}`;
+
+            if (profile.pix_key) document.getElementById('pix-key').innerText = profile.pix_key;
+
+            if (profile.services) {
+                const servicesContainer = document.querySelector('.services-grid');
+                servicesContainer.innerHTML = ''; 
+                profile.services.forEach(s => {
+                    if (s.name) {
+                        const card = document.createElement('div');
+                        card.className = 'service-mini-card';
+                        card.innerHTML = `<i class="${s.icon || 'fas fa-star'}"></i><span>${s.name}</span>`;
+                        servicesContainer.appendChild(card);
+                    }
+                });
+            }
+
+            const typedStrings = profile.typed_text ? profile.typed_text.split(',') : ['Sua Profissão', 'Seu Diferencial'];
+            new Typed('.typed', {
+                strings: typedStrings,
+                loop: true,
+                typeSpeed: 100,
+                backSpeed: 50,
+                backDelay: 2000
+            });
+
+            if (session && session.user.id === profileId) {
+                document.getElementById('admin-toolbar').style.display = 'flex';
+            }
+        }
+
+        async function logout() {
+            await window.supabaseClient.auth.signOut();
+            window.location.reload();
+        }
+
+        function generateQRCode() {
+            const pixKey = document.getElementById('pix-key').innerText;
+            const qrContainer = document.getElementById('qrcode-container');
+            const qrImg = document.getElementById('qrcode-img');
+            const color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim().replace('#', '');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixKey)}&color=${color}`;
+            qrContainer.style.display = qrContainer.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function openShareModal() {
+            const modal = document.getElementById('share-modal');
+            const qrImg = document.getElementById('profile-qr-img');
+            const profileUrl = window.location.href;
+            const color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim().replace('#', '');
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(profileUrl)}&color=${color}`;
+            modal.style.display = 'flex';
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').style.display = 'none';
+        }
+
+        function copyProfileLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showToast('Link copiado!');
+                closeShareModal();
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function copyPixKey() {
+            const pixKey = document.getElementById('pix-key').innerText;
+            navigator.clipboard.writeText(pixKey).then(() => {
+                showToast('Chave PIX copiada!');
+            });
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('share-modal');
+            if (event.target == modal) {
+                closeShareModal();
+            }
+        }
+
+        window.onload = loadProfileData;
+    </script>
+</body>
+</html>

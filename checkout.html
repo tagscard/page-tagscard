@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Tagscard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #050505;
+            padding: 40px 20px;
+        }
+
+        .checkout-container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .checkout-container { grid-template-columns: 1fr; }
+        }
+
+        .checkout-box {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            padding: 30px;
+            border-radius: 24px;
+        }
+
+        .checkout-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; }
+        .form-group input { 
+            width: 100%; 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--glass-border); 
+            padding: 12px; 
+            border-radius: 10px; 
+            color: white; 
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+        }
+
+        .summary-total {
+            border-top: 1px solid var(--glass-border);
+            padding-top: 15px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .method-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .method-card i { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+        .method-card.active { border-color: var(--primary-color); background: rgba(255,105,0,0.1); }
+
+        .btn-pay { width: 100%; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-client.js"></script>
+
+    <div class="checkout-container">
+        <!-- Form Section -->
+        <div class="checkout-box">
+            <a href="index.html#pricing" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem; margin-bottom: 20px; display: inline-block;">
+                <i class="fas fa-arrow-left"></i> Voltar para planos
+            </a>
+            <h2 class="checkout-title"><i class="fas fa-user-check"></i> Dados do Cliente</h2>
+            <form id="checkoutForm">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="cust-name" required placeholder="João Silva">
+                </div>
+                <div class="form-group">
+                    <label>E-mail para Acesso</label>
+                    <input type="email" id="cust-email" required placeholder="joao@exemplo.com">
+                </div>
+                <div class="form-group">
+                    <label>Defina uma Senha</label>
+                    <input type="password" id="cust-password" required placeholder="Mínimo 6 caracteres" minlength="6">
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp</label>
+                    <input type="text" id="cust-phone" required placeholder="(11) 99999-9999">
+                </div>
+
+                <h2 class="checkout-title" style="margin-top: 40px;"><i class="fas fa-credit-card"></i> Pagamento</h2>
+                <div class="payment-methods">
+                    <div class="method-card active" id="method-pix" onclick="selectMethod('pix')">
+                        <i class="fas fa-qrcode"></i>
+                        <span>PIX (Aprovação na hora)</span>
+                    </div>
+                    <div class="method-card" id="method-credit_card" onclick="selectMethod('credit_card')">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Cartão de Crédito</span>
+                    </div>
+                </div>
+
+                <!-- Campos de Cartão de Crédito (Escondidos por padrão) -->
+                <div id="credit-card-fields" style="display: none; margin-bottom: 25px; border: 1px solid var(--glass-border); padding: 20px; border-radius: 15px; background: rgba(255,255,255,0.02);">
+                    <div class="form-group">
+                        <label>Número do Cartão</label>
+                        <input type="text" id="card-number" placeholder="0000 0000 0000 0000">
+                    </div>
+                    <div class="form-group">
+                        <label>Nome Impresso no Cartão</label>
+                        <input type="text" id="card-holder" placeholder="NOME COMO NO CARTÃO">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Validade</label>
+                            <input type="text" id="card-expiry" placeholder="MM/AA">
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="text" id="card-cvv" placeholder="123">
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" id="selected-method" value="pix">
+
+                <p id="checkoutError" style="color: #ff4444; font-size: 0.85rem; margin-bottom: 15px; display: none;"></p>
+
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 20px;">
+                    Ao clicar em finalizar, você concorda com nossos termos de uso. Sua assinatura será renovada automaticamente a cada 12 meses. Você pode cancelar a qualquer momento.
+                </p>
+
+                <button type="submit" class="btn btn-primary btn-pay">Finalizar Pedido Agora</button>
+            </form>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="checkout-box" style="height: fit-content;">
+            <h2 class="checkout-title"><i class="fas fa-shopping-cart"></i> Resumo do Pedido</h2>
+            <div id="plan-details">
+                <div class="summary-item">
+                    <span>Plano Selecionado</span>
+                    <strong id="plan-name">Premium NFC</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Ciclo de Pagamento</span>
+                    <span>Anual</span>
+                </div>
+                <div class="summary-item">
+                    <span>Ativação Digital</span>
+                    <span style="color: #28a745;">Grátis</span>
+                </div>
+                <div class="summary-item" id="shipping-row">
+                    <span>Frete (Cartão Físico)</span>
+                    <span style="color: #28a745;">Grátis</span>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px;">
+                    <p style="font-size: 0.8rem; font-weight: 600; margin-bottom: 10px; color: var(--primary-color);">O que você recebe:</p>
+                    <ul id="benefits-list" style="list-style: none; padding: 0; font-size: 0.8rem; color: var(--text-muted);">
+                        <li style="margin-bottom: 5px;"><i class="fas fa-check"></i> Perfil Digital Customizável</li>
+                        <li style="margin-bottom: 5px;"><i class="fas fa-check"></i> Cartão Físico com Chip NFC</li>
+                        <li style="margin-bottom: 5px;"><i class="fas fa-check"></i> QR Code de Emergência</li>
+                        <li><i class="fas fa-check"></i> Edição Ilimitada dos Dados</li>
+                    </ul>
+                </div>
+
+                <div class="summary-total">
+                    <span>Total Hoje</span>
+                    <span id="plan-price">R$ 149,00</span>
+                </div>
+                <p style="text-align: right; font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">Cobrado anualmente</p>
+            </div>
+
+            <p style="font-size: 0.8rem; color: #555; margin-top: 30px; text-align: center;">
+                <i class="fas fa-shield-alt" style="color: #0066ff;"></i> Pagamento 100% Seguro via <strong>Asaas</strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const plan = urlParams.get('plan') || 'premium';
+
+        const plans = {
+            digital: { name: 'Digital Anual', price: 'R$ 49,90/ano' },
+            premium: { name: 'Premium NFC', price: 'R$ 149,00/ano' },
+            business: { name: 'Business Pro', price: 'R$ 399,00/ano' }
+        };
+
+        if (plans[plan]) {
+            document.getElementById('plan-name').innerText = plans[plan].name;
+            document.getElementById('plan-price').innerText = plans[plan].price;
+        }
+
+        // Troca de Métodos de Pagamento
+        function selectMethod(method) {
+            document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+            document.getElementById(`method-${method}`).classList.add('active');
+            document.getElementById('selected-method').value = method;
+
+            const cardFields = document.getElementById('credit-card-fields');
+            if (method === 'credit_card') {
+                cardFields.style.display = 'block';
+                document.getElementById('card-number').required = true;
+                document.getElementById('card-holder').required = true;
+                document.getElementById('card-expiry').required = true;
+                document.getElementById('card-cvv').required = true;
+            } else {
+                cardFields.style.display = 'none';
+                document.getElementById('card-number').required = false;
+                document.getElementById('card-holder').required = false;
+                document.getElementById('card-expiry').required = false;
+                document.getElementById('card-cvv').required = false;
+            }
+        }
+
+        document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const errorMsg = document.getElementById('checkoutError');
+            
+            const name = document.getElementById('cust-name').value;
+            const email = document.getElementById('cust-email').value;
+            const password = document.getElementById('cust-password').value;
+            const phone = document.getElementById('cust-phone').value;
+            const method = document.getElementById('selected-method').value;
+
+            btn.innerText = 'Processando Pagamento...';
+            btn.disabled = true;
+
+            try {
+                // 1. Criar Usuário no Auth do Supabase
+                const { data: authData, error: authError } = await window.supabaseClient.auth.signUp({
+                    email: email,
+                    password: password,
+                });
+
+                if (authError) throw authError;
+
+                const user = authData.user;
+
+                // 2. Integração com Asaas (Simulação por enquanto)
+                // Aqui faremos a chamada para a Vercel Function que criará a cobrança no Asaas
+                console.log(`Iniciando pagamento via ${method} no Asaas para ${email}`);
+                
+                // 3. Criar Perfil no Banco de Dados
+                const { error: profileError } = await window.supabaseClient
+                    .from('profiles')
+                    .insert([
+                        { 
+                            id: user.id, 
+                            name: name, 
+                            plan_type: plan,
+                            social_links: { whatsapp: phone }
+                        }
+                    ]);
+
+                if (profileError) throw profileError;
+
+                // Sucesso: Redirecionar para Onboarding
+                window.location.href = 'onboarding.html';
+
+            } catch (err) {
+                errorMsg.innerText = err.message || "Ocorreu um erro no processamento.";
+                errorMsg.style.display = 'block';
+                btn.innerText = 'Finalizar Pedido Agora';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

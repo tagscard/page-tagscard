@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações do Perfil | Tagscard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff6900;
+            --bg-dark: #050505;
+            --bg-card: #111;
+            --text-white: #ffffff;
+            --text-muted: #a8a8a8;
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-white);
+            margin: 0;
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .btn-view {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        input[type="text"], input[type="email"], textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        textarea { resize: none; height: 100px; }
+
+        .image-upload-section {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .preview-box {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #222;
+            overflow: hidden;
+            border: 2px solid var(--primary);
+            flex-shrink: 0;
+        }
+
+        .preview-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .color-picker {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: 0.2s;
+        }
+
+        .color-option.active { border-color: white; transform: scale(1.1); }
+
+        .service-row {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .footer-save {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .btn-save {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 60px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(255, 105, 0, 0.3);
+            transition: 0.3s;
+        }
+
+        .btn-save:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(255, 105, 0, 0.4); }
+        .btn-save:disabled { background: #555; cursor: not-allowed; box-shadow: none; }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 2000;
+        }
+        .toast.show { opacity: 1; top: 40px; }
+
+        small.char-counter {
+            display: block;
+            text-align: right;
+            margin-top: 5px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-client.js"></script>
+
+    <div class="toast" id="toast">Alterações salvas!</div>
+
+    <div class="container">
+        <header class="header">
+            <h2>Configurações</h2>
+            <a href="profile.html" id="view-profile-link" class="btn-view"><i class="fas fa-eye"></i> Ver Perfil</a>
+        </header>
+
+        <form id="edit-form">
+            <!-- Identidade Visual -->
+            <div class="card">
+                <h3><i class="fas fa-user-circle"></i> Identidade Visual</h3>
+                
+                <div class="form-group image-upload-section">
+                    <div class="preview-box">
+                        <img id="avatar-preview" src="https://ui-avatars.com/api/?name=User&background=ff6900&color=fff" alt="Avatar">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Foto de Perfil</label>
+                        <input type="file" id="input-avatar" accept="image/*">
+                        <input type="hidden" id="url-avatar">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nome Completo (ou Nome Profissional)</label>
+                    <input type="text" id="input-name" placeholder="Ex: Dr. João Silva">
+                </div>
+
+                <div class="form-group">
+                    <label>Cor do Tema</label>
+                    <div class="color-picker">
+                        <div class="color-option active" style="background: #ff6900;" data-color="#ff6900"></div>
+                        <div class="color-option" style="background: #007bff;" data-color="#007bff"></div>
+                        <div class="color-option" style="background: #28a745;" data-color="#28a745"></div>
+                        <div class="color-option" style="background: #6f42c1;" data-color="#6f42c1"></div>
+                        <div class="color-option" style="background: #e83e8c;" data-color="#e83e8c"></div>
+                    </div>
+                    <input type="hidden" id="input-color" value="#ff6900">
+                </div>
+            </div>
+
+            <!-- Marketing & Hero -->
+            <div class="card">
+                <h3><i class="fas fa-rocket"></i> Marketing & Hero</h3>
+                <div class="form-group">
+                    <label><i class="fas fa-keyboard"></i> Frases de Impacto (Efeito Typed)</label>
+                    <input type="text" id="input-typed" placeholder="Ex: Designer, Estrategista, Palestrante (separe por vírgula)">
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">Estas frases aparecem logo abaixo do seu nome com um efeito de digitação.</small>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Imagem de Fundo (Hero Background)</label>
+                    <input type="file" id="input-hero" accept="image/*">
+                    <input type="hidden" id="url-hero">
+                    <div id="hero-preview-container" style="margin-top: 10px; display: none;">
+                        <img id="hero-preview-img" src="" style="width: 100%; height: 100px; object-fit: cover; border-radius: 12px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sobre Você -->
+            <div class="card">
+                <h3><i class="fas fa-address-card"></i> Sobre Você</h3>
+                <div class="form-group">
+                    <label>Biografia Detalhada</label>
+                    <textarea id="input-bio" maxlength="500" placeholder="Conte mais sobre sua trajetória, especialidades e como você pode ajudar seus clientes..."></textarea>
+                    <small class="char-counter" id="bio-counter">0/500</small>
+                </div>
+            </div>
+
+            <!-- Serviços -->
+            <div class="card">
+                <h3><i class="fas fa-concierge-bell"></i> Meus Serviços</h3>
+                <div class="service-row">
+                    <label>Serviço 1</label>
+                    <input type="text" id="service-1-name" placeholder="Título" style="margin-bottom: 8px;">
+                    <input type="text" id="service-1-icon" placeholder="Ícone (ex: fas fa-code)">
+                </div>
+                <div class="service-row">
+                    <label>Serviço 2</label>
+                    <input type="text" id="service-2-name" placeholder="Título" style="margin-bottom: 8px;">
+                    <input type="text" id="service-2-icon" placeholder="Ícone (ex: fas fa-paint-brush)">
+                </div>
+                <div class="service-row">
+                    <label>Serviço 3</label>
+                    <input type="text" id="service-3-name" placeholder="Título" style="margin-bottom: 8px;">
+                    <input type="text" id="service-3-icon" placeholder="Ícone (ex: fas fa-chart-line)">
+                </div>
+            </div>
+
+            <!-- Redes Sociais -->
+            <div class="card">
+                <h3><i class="fas fa-share-alt"></i> Redes Sociais</h3>
+                
+                <div class="toggle-row">
+                    <span>WhatsApp</span>
+                    <label class="switch"><input type="checkbox" id="check-whatsapp" checked><span class="slider"></span></label>
+                </div>
+                <input type="text" id="val-whatsapp" placeholder="Ex: 5511999999999" style="margin-bottom: 20px;">
+
+                <div class="toggle-row">
+                    <span>Instagram</span>
+                    <label class="switch"><input type="checkbox" id="check-instagram" checked><span class="slider"></span></label>
+                </div>
+                <input type="text" id="val-instagram" placeholder="Ex: @seu_perfil" style="margin-bottom: 20px;">
+
+                <div class="toggle-row">
+                    <span>LinkedIn</span>
+                    <label class="switch"><input type="checkbox" id="check-linkedin" checked><span class="slider"></span></label>
+                </div>
+                <input type="text" id="val-linkedin" placeholder="URL do perfil">
+            </div>
+
+            <!-- Pagamento -->
+            <div class="card">
+                <h3><i class="fas fa-qrcode"></i> Pagamento PIX</h3>
+                <div class="toggle-row">
+                    <span>Ativar Seção PIX</span>
+                    <label class="switch"><input type="checkbox" id="check-pix" checked><span class="slider"></span></label>
+                </div>
+                <input type="text" id="val-pix" placeholder="Sua Chave PIX">
+            </div>
+
+            <div class="footer-save">
+                <button type="submit" class="btn-save">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById('edit-form');
+        const colorOptions = document.querySelectorAll('.color-option');
+        let currentUser = null;
+        
+        // Verificar Sessão e Carregar Dados
+        window.addEventListener('load', async () => {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = session.user;
+            document.getElementById('view-profile-link').href = `profile.html?id=${currentUser.id}`;
+
+            const { data: profile, error } = await window.supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+
+            if (profile) {
+                if (profile.name) document.getElementById('input-name').value = profile.name;
+                if (profile.typed_text) document.getElementById('input-typed').value = profile.typed_text;
+                if (profile.bio) {
+                    document.getElementById('input-bio').value = profile.bio;
+                    document.getElementById('bio-counter').innerText = `${profile.bio.length}/500`;
+                }
+                if (profile.avatar_url) {
+                    document.getElementById('avatar-preview').src = profile.avatar_url;
+                    document.getElementById('url-avatar').value = profile.avatar_url;
+                }
+                if (profile.hero_url) {
+                    document.getElementById('hero-preview-container').style.display = 'block';
+                    document.getElementById('hero-preview-img').src = profile.hero_url;
+                    document.getElementById('url-hero').value = profile.hero_url;
+                }
+                if (profile.theme_color) {
+                    document.getElementById('input-color').value = profile.theme_color;
+                    colorOptions.forEach(opt => {
+                        opt.classList.toggle('active', opt.dataset.color === profile.theme_color);
+                    });
+                }
+
+                // Serviços
+                if (profile.services) {
+                    profile.services.forEach((s, i) => {
+                        const idx = i + 1;
+                        if (document.getElementById(`service-${idx}-name`)) {
+                            document.getElementById(`service-${idx}-name`).value = s.name || '';
+                            document.getElementById(`service-${idx}-icon`).value = s.icon || '';
+                        }
+                    });
+                }
+
+                // Sociais & Pix
+                const links = profile.social_links || {};
+                document.getElementById('check-whatsapp').checked = links.showWhatsapp !== false;
+                document.getElementById('val-whatsapp').value = links.whatsapp || '';
+                document.getElementById('check-instagram').checked = links.showInstagram !== false;
+                document.getElementById('val-instagram').value = links.instagram || '';
+                document.getElementById('check-linkedin').checked = links.showLinkedin !== false;
+                document.getElementById('val-linkedin').value = links.linkedin || '';
+                
+                document.getElementById('check-pix').checked = profile.show_pix !== false;
+                document.getElementById('val-pix').value = profile.pix_key || '';
+            }
+        });
+
+        // Seleção de Cor
+        colorOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                colorOptions.forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                document.getElementById('input-color').value = opt.dataset.color;
+            });
+        });
+
+        // Contador de Bio
+        document.getElementById('input-bio').addEventListener('input', (e) => {
+            document.getElementById('bio-counter').innerText = `${e.target.value.length}/500`;
+        });
+
+        // Upload de Imagem (Avatar)
+        document.getElementById('input-avatar').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file && currentUser) {
+                const btn = document.querySelector('.btn-save');
+                btn.innerText = 'Enviando foto...';
+                btn.disabled = true;
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${currentUser.id}/avatar.${fileExt}`;
+                
+                const { error: uploadError } = await window.supabaseClient.storage
+                    .from('profiles')
+                    .upload(fileName, file, { upsert: true });
+
+                if (!uploadError) {
+                    const { data: { publicUrl } } = window.supabaseClient.storage
+                        .from('profiles')
+                        .getPublicUrl(fileName);
+                    
+                    document.getElementById('avatar-preview').src = publicUrl;
+                    document.getElementById('url-avatar').value = publicUrl;
+                }
+                btn.innerText = 'Salvar Alterações';
+                btn.disabled = false;
+            }
+        });
+
+        // Upload de Imagem (Hero)
+        document.getElementById('input-hero').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file && currentUser) {
+                const btn = document.querySelector('.btn-save');
+                btn.innerText = 'Enviando capa...';
+                btn.disabled = true;
+
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${currentUser.id}/hero.${fileExt}`;
+                
+                const { error: uploadError } = await window.supabaseClient.storage
+                    .from('profiles')
+                    .upload(fileName, file, { upsert: true });
+
+                if (!uploadError) {
+                    const { data: { publicUrl } } = window.supabaseClient.storage
+                        .from('profiles')
+                        .getPublicUrl(fileName);
+                    
+                    document.getElementById('hero-preview-container').style.display = 'block';
+                    document.getElementById('hero-preview-img').src = publicUrl;
+                    document.getElementById('url-hero').value = publicUrl;
+                }
+                btn.innerText = 'Salvar Alterações';
+                btn.disabled = false;
+            }
+        });
+
+        // Salvar TUDO
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) return;
+            
+            const btn = e.target.querySelector('.btn-save');
+            btn.innerText = 'Salvando...';
+            btn.disabled = true;
+
+            const profileData = {
+                name: document.getElementById('input-name').value,
+                typed_text: document.getElementById('input-typed').value,
+                bio: document.getElementById('input-bio').value,
+                avatar_url: document.getElementById('url-avatar').value,
+                hero_url: document.getElementById('url-hero').value,
+                theme_color: document.getElementById('input-color').value,
+                services: [
+                    { name: document.getElementById('service-1-name').value, icon: document.getElementById('service-1-icon').value },
+                    { name: document.getElementById('service-2-name').value, icon: document.getElementById('service-2-icon').value },
+                    { name: document.getElementById('service-3-name').value, icon: document.getElementById('service-3-icon').value }
+                ],
+                social_links: {
+                    showWhatsapp: document.getElementById('check-whatsapp').checked,
+                    whatsapp: document.getElementById('val-whatsapp').value,
+                    showInstagram: document.getElementById('check-instagram').checked,
+                    instagram: document.getElementById('val-instagram').value,
+                    showLinkedin: document.getElementById('check-linkedin').checked,
+                    linkedin: document.getElementById('val-linkedin').value
+                },
+                pix_key: document.getElementById('val-pix').value,
+                updated_at: new Date()
+            };
+
+            const { error } = await window.supabaseClient
+                .from('profiles')
+                .update(profileData)
+                .eq('id', currentUser.id);
+
+            if (error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2000);
+            }
+            btn.innerText = 'Salvar Alterações';
+            btn.disabled = false;
+        });
+    </script>
+</body>
+</html>
