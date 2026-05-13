@@ -123,6 +123,10 @@
                     <label>WhatsApp</label>
                     <input type="text" id="cust-phone" required placeholder="(11) 99999-9999">
                 </div>
+                <div class="form-group">
+                    <label>CPF (Necessário para cobrança)</label>
+                    <input type="text" id="cust-cpf" required placeholder="000.000.000-00">
+                </div>
 
                 <h2 class="checkout-title" style="margin-top: 40px;"><i class="fas fa-credit-card"></i> Pagamento</h2>
                 <div class="payment-methods">
@@ -276,10 +280,34 @@
 
                 const user = authData.user;
 
-                // 2. Integração com Asaas (Simulação por enquanto)
-                // Aqui faremos a chamada para a Vercel Function que criará a cobrança no Asaas
-                console.log(`Iniciando pagamento via ${method} no Asaas para ${email}`);
-                
+                // 2. Integração com Asaas REAL
+                const payResponse = await fetch('/api/pay', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        phone,
+                        cpf: document.getElementById('cust-cpf').value,
+                        method,
+                        plan,
+                        cardData: method === 'credit_card' ? {
+                            number: document.getElementById('card-number').value,
+                            holderName: document.getElementById('card-holder').value,
+                            expiry: document.getElementById('card-expiry').value,
+                            cvv: document.getElementById('card-cvv').value
+                        } : null
+                    })
+                });
+
+                const payData = await payResponse.json();
+                if (payData.error) throw new Error(payData.error);
+
+                // Se for PIX, guardar o QR Code para mostrar no onboarding
+                if (method === 'pix' && payData.pix) {
+                    localStorage.setItem('pending_pix', JSON.stringify(payData.pix));
+                }
+
                 // 3. Criar Perfil no Banco de Dados
                 const { error: profileError } = await window.supabaseClient
                     .from('profiles')
