@@ -65,8 +65,23 @@
         <div class="success-icon">
             <i class="fas fa-check"></i>
         </div>
-        <h1>Parabéns, <span id="user-name">Cliente</span>!</h1>
-        <p>Seu pagamento foi aprovado e você agora faz parte do futuro do networking. Vamos configurar o seu cartão?</p>
+        <h1>Quase lá, <span id="user-name">Cliente</span>!</h1>
+        <p id="onboarding-msg">Finalize o pagamento abaixo para ativar seu perfil e receber seu cartão físico.</p>
+
+        <!-- Seção de Pagamento PIX -->
+        <div id="pix-section" style="display: none; margin-bottom: 30px; padding: 20px; background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px dashed var(--primary-color);">
+            <p style="font-size: 0.8rem; margin-bottom: 15px; color: var(--primary-color); font-weight: 600;">ESCANEIE O QR CODE PARA PAGAR:</p>
+            <img id="pix-qr-code" src="" alt="QR Code Pix" style="width: 200px; height: 200px; background: white; padding: 10px; border-radius: 10px; margin: 0 auto 15px; display: block;">
+            
+            <div class="form-group" style="text-align: left;">
+                <label style="font-size: 0.7rem;">Código Pix (Copia e Cola):</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="pix-code" readonly style="font-size: 0.7rem; flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 8px; border-radius: 5px;">
+                    <button onclick="copyPix()" class="btn btn-primary" style="padding: 8px 15px; font-size: 0.7rem;">Copiar</button>
+                </div>
+            </div>
+            <p style="font-size: 0.7rem; margin-top: 15px;"><i class="fas fa-info-circle"></i> O acesso total ao painel será liberado após a confirmação.</p>
+        </div>
 
         <div class="steps">
             <div class="step-item">
@@ -107,7 +122,27 @@
                 }
             }
         }
+
+        function checkPendingPix() {
+            const pendingPix = localStorage.getItem('pending_pix');
+            if (pendingPix) {
+                const pixData = JSON.parse(pendingPix);
+                document.getElementById('pix-section').style.display = 'block';
+                document.getElementById('pix-qr-code').src = `data:image/png;base64,${pixData.encodedImage}`;
+                document.getElementById('pix-code').value = pixData.payload;
+                document.getElementById('onboarding-msg').innerText = "Estamos aguardando seu pagamento para liberar seu acesso total.";
+            }
+        }
+
+        function copyPix() {
+            const pixCode = document.getElementById('pix-code');
+            pixCode.select();
+            document.execCommand('copy');
+            alert('Código Pix copiado!');
+        }
+
         loadUserName();
+        checkPendingPix();
     </script>
 </body>
 </html>
