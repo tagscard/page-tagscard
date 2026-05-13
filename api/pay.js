@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, email, phone, method, plan, cardData } = req.body;
+  const { name, email, phone, cpf, method, plan, cardData } = req.body;
   const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
   const ASAAS_URL = process.env.ASAAS_URL || 'https://www.asaas.com/api/v3';
 
@@ -20,6 +20,7 @@ export default async function handler(req, res) {
         name,
         email,
         mobilePhone: phone,
+        cpfCnpj: cpf,
         notificationDisabled: false
       })
     });
@@ -55,8 +56,8 @@ export default async function handler(req, res) {
       paymentBody.creditCardHolderInfo = {
         name,
         email,
-        cpfCnpj: '00000000000', // Nota: Asaas exige CPF real para cartão. Precisaremos adicionar esse campo no checkout.
-        postalCode: '00000000',
+        cpfCnpj: cpf,
+        postalCode: '04101300', // CEP padrão (pode ser ajustado depois)
         addressNumber: '1',
         mobilePhone: phone
       };
