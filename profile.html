@@ -251,28 +251,26 @@
             } finally {
                 // Remover Loader
                 setTimeout(() => {
-                    // 1. Animação do Topo (Hero) - Digitação
-                    if (currentProfile && currentProfile.bio) {
-                        const bioText = currentProfile.bio;
-                        // Só faz o efeito de "digitar várias" se tiver a barra |
-                        const typedStrings = bioText.includes('|') 
-                            ? bioText.split('|').map(s => s.trim())
-                            : [bioText.split('.')[0]]; // Se não tiver |, digita só a primeira frase
+                    // 1. Animação do Topo (Hero) - Usando Especialidades (specialties)
+                    if (currentProfile && currentProfile.specialties) {
+                        const specialtyText = currentProfile.specialties;
+                        const typedStrings = specialtyText.includes('|') 
+                            ? specialtyText.split('|').map(s => s.trim())
+                            : [specialtyText];
                         
                         new Typed('.typed', {
                             strings: typedStrings,
                             typeSpeed: 60,
                             backSpeed: 30,
                             backDelay: 2000,
-                            loop: typedStrings.length > 1
+                            loop: true
                         });
                     }
 
                     // 2. Bio do "Sobre" (ESTÁTICA)
                     const displayBio = document.getElementById('display-bio');
                     if (currentProfile && currentProfile.bio && displayBio) {
-                        // Mostra o texto completo, mas remove as barras | para ficar bonito
-                        displayBio.innerText = currentProfile.bio.replaceAll('|', ' ');
+                        displayBio.innerText = currentProfile.bio;
                     }
 
                     // Atualizar Fotos
