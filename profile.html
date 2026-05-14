@@ -107,10 +107,6 @@
             <section id="pix" class="content-section">
                 <h3 class="section-title">Pagamento via PIX</h3>
                 <div id="section-pix" class="pix-box card">
-                    <a href="index.html" class="tagscard-badge">
-                        <span>Criado com</span>
-                        <img src="assets/logo.png" alt="Tagscard Logo" style="height: 20px; margin-left: 5px;">
-                    </a>
                     <div class="pix-key-box">
                         <span id="pix-key">...</span>
                         <div class="pix-actions">
@@ -154,6 +150,14 @@
         <button class="fab-share" onclick="openShareModal()">
             <i class="fas fa-qrcode"></i>
         </button>
+
+        <!-- Selo Tagscard Rodapé (Discreto) -->
+        <footer class="main-footer-badge">
+            <a href="index.html">
+                <span>Criado com</span>
+                <img src="assets/logo.png" alt="Tagscard Logo">
+            </a>
+        </footer>
     </main>
 
     <div id="toast" class="toast">Copiado com sucesso!</div>
@@ -249,13 +253,18 @@
                 setTimeout(() => {
                     // 1. Animação do Topo (Hero) - Digitação
                     if (currentProfile && currentProfile.bio) {
-                        const typedStrings = currentProfile.bio.split('|').map(s => s.trim());
+                        const bioText = currentProfile.bio;
+                        // Só faz o efeito de "digitar várias" se tiver a barra |
+                        const typedStrings = bioText.includes('|') 
+                            ? bioText.split('|').map(s => s.trim())
+                            : [bioText.split('.')[0]]; // Se não tiver |, digita só a primeira frase
+                        
                         new Typed('.typed', {
                             strings: typedStrings,
                             typeSpeed: 60,
                             backSpeed: 30,
                             backDelay: 2000,
-                            loop: true
+                            loop: typedStrings.length > 1
                         });
                     }
 

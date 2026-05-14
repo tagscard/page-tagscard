@@ -577,10 +577,43 @@ body {
     display: block;
 }
 
+/* Selo Rodapé Discreto */
+.main-footer-badge {
+    text-align: center;
+    padding: 30px 0;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+}
+
+.main-footer-badge:hover {
+    opacity: 1;
+}
+
+.main-footer-badge a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #888;
+    font-size: 0.8rem;
+}
+
+.main-footer-badge img {
+    height: 18px;
+    filter: grayscale(1);
+}
+
 @media (max-width: 1199px) {
     .sidebar {
         width: 280px;
         z-index: 9997;
-        background: #040b14; /* Garantir fundo escuro visível */
+        background: #040b14;
+        display: block !important; /* Forçar exibição */
+    }
+    
+    .sidebar .profile-info, 
+    .sidebar .nav-menu, 
+    .sidebar-footer {
+        display: block !important; /* Garantir que o conteúdo interno apareça */
     }
 }
