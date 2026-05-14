@@ -385,7 +385,7 @@
 
             if (profile) {
                 if (profile.name) document.getElementById('input-name').value = profile.name;
-                if (profile.typed_text) document.getElementById('input-typed').value = profile.typed_text;
+                if (profile.specialties) document.getElementById('input-typed').value = profile.specialties;
                 if (profile.bio) {
                     document.getElementById('input-bio').value = profile.bio;
                     document.getElementById('bio-counter').innerText = `${profile.bio.length}/500`;
@@ -520,7 +520,7 @@
 
             const profileData = {
                 name: document.getElementById('input-name').value,
-                typed_text: document.getElementById('input-typed').value,
+                specialties: document.getElementById('input-typed').value,
                 bio: document.getElementById('input-bio').value,
                 avatar_url: document.getElementById('url-avatar').value,
                 hero_url: document.getElementById('url-hero').value,
