@@ -108,6 +108,41 @@
     <script src="assets/js/supabase-client.js"></script>
 
     <script>
+        let pollingInterval;
+
+        async function startPaymentPolling(paymentId, userId) {
+            if (pollingInterval) return;
+
+            pollingInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/check-payment?paymentId=${paymentId}&userId=${userId}`);
+                    const data = await response.json();
+
+                    if (data.isPaid) {
+                        clearInterval(pollingInterval);
+                        showSuccessState();
+                    }
+                } catch (error) {
+                    console.error("Erro ao verificar pagamento:", error);
+                }
+            }, 5000); // Verifica a cada 5 segundos
+        }
+
+        function showSuccessState() {
+            document.getElementById('pix-section').style.display = 'none';
+            document.getElementById('onboarding-msg').innerHTML = "<strong style='color: #28a745;'><i class='fas fa-check-circle'></i> PAGAMENTO CONFIRMADO!</strong><br>Seu acesso total foi liberado agora mesmo.";
+            document.getElementById('user-name').parentElement.innerText = "Parabéns!";
+            
+            // Alterar ícone para check verde
+            const icon = document.querySelector('.success-icon');
+            icon.style.background = '#28a745';
+            icon.innerHTML = '<i class="fas fa-check-double"></i>';
+
+            // Remover do localStorage para não mostrar mais o QR Code
+            localStorage.removeItem('pending_pix');
+            localStorage.removeItem('last_payment_id');
+        }
+
         async function loadUserName() {
             const { data: { session } } = await window.supabaseClient.auth.getSession();
             if (session) {
@@ -119,6 +154,12 @@
                 
                 if (profile && profile.name) {
                     document.getElementById('user-name').innerText = profile.name.split(' ')[0];
+                }
+
+                // Se houver um pagamento pendente, inicia a escuta
+                const lastPaymentId = localStorage.getItem('last_payment_id');
+                if (lastPaymentId) {
+                    startPaymentPolling(lastPaymentId, session.user.id);
                 }
             }
         }

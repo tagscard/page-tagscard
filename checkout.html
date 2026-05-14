@@ -303,6 +303,11 @@
                 const payData = await payResponse.json();
                 if (payData.error) throw new Error(payData.error);
 
+                // Guardar o ID do pagamento para verificação em tempo real
+                if (payData.id) {
+                    localStorage.setItem('last_payment_id', payData.id);
+                }
+
                 // Se for PIX, guardar o QR Code para mostrar no onboarding
                 if (method === 'pix' && payData.pix) {
                     localStorage.setItem('pending_pix', JSON.stringify(payData.pix));
