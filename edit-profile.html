@@ -457,12 +457,12 @@
                 const fileName = `${currentUser.id}/avatar.${fileExt}`;
                 
                 const { error: uploadError } = await window.supabaseClient.storage
-                    .from('profiles')
+                    .from('avatars')
                     .upload(fileName, file, { upsert: true });
 
                 if (!uploadError) {
                     const { data: { publicUrl } } = window.supabaseClient.storage
-                        .from('profiles')
+                        .from('avatars')
                         .getPublicUrl(fileName);
                     
                     document.getElementById('avatar-preview').src = publicUrl;
@@ -485,12 +485,12 @@
                 const fileName = `${currentUser.id}/hero.${fileExt}`;
                 
                 const { error: uploadError } = await window.supabaseClient.storage
-                    .from('profiles')
+                    .from('heroes')
                     .upload(fileName, file, { upsert: true });
 
                 if (!uploadError) {
                     const { data: { publicUrl } } = window.supabaseClient.storage
-                        .from('profiles')
+                        .from('heroes')
                         .getPublicUrl(fileName);
                     
                     document.getElementById('hero-preview-container').style.display = 'block';

@@ -247,6 +247,28 @@
             } finally {
                 // Remover Loader
                 setTimeout(() => {
+                    // Configurar Efeito Typed.js na Bio (Separando por |)
+                    if (currentProfile && currentProfile.bio) {
+                        const bioStrings = currentProfile.bio.split('|').map(s => s.trim());
+                        new Typed('#display-bio', {
+                            strings: bioStrings,
+                            typeSpeed: 50,
+                            backSpeed: 30,
+                            backDelay: 2000,
+                            loop: true
+                        });
+                    }
+
+                    // Atualizar Fotos com fallback
+                    const profileImg = document.getElementById('profile-img');
+                    if (currentProfile && currentProfile.avatar_url && profileImg) {
+                        profileImg.src = currentProfile.avatar_url;
+                    }
+                    const heroImg = document.getElementById('hero-img');
+                    if (currentProfile && currentProfile.hero_url && heroImg) {
+                        heroImg.src = currentProfile.hero_url;
+                    }
+
                     const loader = document.getElementById('loader');
                     if (loader) {
                         loader.style.opacity = '0';
