@@ -117,6 +117,8 @@
                 try {
                     const response = await fetch(`/api/check-payment?paymentId=${paymentId}&userId=${userId}`);
                     const data = await response.json();
+                    
+                    console.log("Verificando pagamento...", data);
 
                     if (data.isPaid) {
                         clearInterval(pollingInterval);
