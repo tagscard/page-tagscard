@@ -243,11 +243,6 @@
             // Incrementar contador de visitas (silenciosamente)
             supabase.rpc('increment_visits', { profile_id: profileId });
 
-            // Listener para VCard
-            document.getElementById('save-vcard').onclick = () => {
-                if (currentProfile) window.downloadVCard(currentProfile);
-            };
-
             } catch (error) {
                 console.error("Erro ao carregar perfil:", error);
                 document.body.innerHTML = '<div style="color: white; text-align: center; padding: 100px; font-family: Inter, sans-serif;"><h2>Erro técnico</h2><p>Não foi possível carregar as informações.</p></div>';
