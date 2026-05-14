@@ -68,6 +68,8 @@
         <i class="fas fa-bars"></i>
     </button>
 
+    <div class="mobile-nav-overly" id="mobile-nav-overly"></div>
+
     <!-- Conteúdo Principal -->
     <main id="main-content" class="main-content">
         
@@ -228,14 +230,7 @@
                 });
             }
 
-            const typedStrings = profile.typed_text ? profile.typed_text.split(',') : ['Sua Profissão', 'Seu Diferencial'];
-            new Typed('.typed', {
-                strings: typedStrings,
-                loop: true,
-                typeSpeed: 100,
-                backSpeed: 50,
-                backDelay: 2000
-            });
+            // Animação será inicializada no bloco 'finally' para garantir que os dados já chegaram
 
             if (session && session.user.id === profileId) {
                 document.getElementById('admin-toolbar').style.display = 'flex';
@@ -292,13 +287,30 @@
 
         // Lógica do Menu Mobile
         const mobileNavToggle = document.getElementById('mobile-nav-toggle');
-        if (mobileNavToggle) {
-            mobileNavToggle.addEventListener('click', function() {
-                document.body.classList.toggle('mobile-nav-active');
-                this.querySelector('i').classList.toggle('fa-bars');
-                this.querySelector('i').classList.toggle('fa-times');
-            });
+        const mobileNavOverly = document.getElementById('mobile-nav-overly');
+        
+        function toggleMobileNav() {
+            document.body.classList.toggle('mobile-nav-active');
+            mobileNavToggle.querySelector('i').classList.toggle('fa-bars');
+            mobileNavToggle.querySelector('i').classList.toggle('fa-times');
         }
+
+        if (mobileNavToggle) {
+            mobileNavToggle.addEventListener('click', toggleMobileNav);
+        }
+
+        if (mobileNavOverly) {
+            mobileNavOverly.addEventListener('click', toggleMobileNav);
+        }
+
+        // Fechar menu ao clicar em um link
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (document.body.classList.contains('mobile-nav-active')) {
+                    toggleMobileNav();
+                }
+            });
+        });
 
         async function logout() {
             await window.supabaseClient.auth.signOut();
