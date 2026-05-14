@@ -211,7 +211,11 @@
             }
 
             if (!profile) {
-                document.body.innerHTML = '<div style="color: white; text-align: center; padding: 100px; font-family: Inter, sans-serif;"><h2>Perfil não encontrado</h2><p>Este perfil ainda não foi configurado.</p></div>';
+                console.error("Perfil não encontrado após todas as tentativas.");
+                const loader = document.getElementById('loader');
+                if (loader) loader.style.display = 'none';
+                
+                document.body.innerHTML = '<div style="color: white; text-align: center; padding: 100px; font-family: Inter, sans-serif;"><h2>Perfil não encontrado</h2><p>Este perfil ainda não foi configurado ou o ID está incorreto.</p><p><a href="login.html" style="color: var(--primary-color);">Voltar ao Login</a></p></div>';
                 return;
             }
 
