@@ -270,14 +270,14 @@
             </div>
 
             <div class="table-card">
-                <h3 style="margin-bottom: 20px; font-size: 1rem;">Clientes Recentes</h3>
+                <h3 style="margin-bottom: 20px; font-size: 1rem;">Gestão de Clientes</h3>
                 <table>
                     <thead>
                         <tr>
                             <th>Cliente</th>
                             <th>Plano</th>
                             <th>Status</th>
-                            <th>Data</th>
+                            <th>Expiração</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -367,20 +367,33 @@
 
             // Tabela
             const table = document.getElementById('users-table');
-            table.innerHTML = users.slice(0, 10).map(u => `
+            table.innerHTML = users.map(u => {
+                // Cálculo de Expiração (365 dias)
+                const createdDate = new Date(u.created_at);
+                const expirationDate = new Date(createdDate.getTime() + (365 * 24 * 60 * 60 * 1000));
+                const today = new Date();
+                const diffTime = expirationDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                let expirationClass = 'color: #28a745;';
+                if (diffDays < 30) expirationClass = 'color: #ffc107;';
+                if (diffDays < 7) expirationClass = 'color: #ff4444; font-weight: bold;';
+
+                return `
                 <tr>
                     <td>
                         <div style="font-weight: 600;">${u.name || 'Sem nome'}</div>
-                        <div style="font-size: 0.75rem; color: #666;">${u.email || ''}</div>
+                        <div style="font-size: 0.75rem; color: #666;">${u.email || u.phone || ''}</div>
                     </td>
                     <td>${u.plan_type ? u.plan_type.toUpperCase() : 'N/A'}</td>
                     <td><span class="badge badge-${u.payment_status}">${u.payment_status === 'confirmed' ? 'Ativo' : 'Pendente'}</span></td>
-                    <td>${new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
+                    <td style="${expirationClass}">${u.payment_status === 'confirmed' ? diffDays + ' dias' : '-'}</td>
                     <td><a href="profile.html?id=${u.id}" target="_blank" style="color: var(--primary-color);"><i class="fas fa-external-link-alt"></i></a></td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
 
-            // Gráfico
+            // Gráfico de Pizza (Doughnut)
             const plansCount = { digital: 0, premium: 0, business: 0 };
             users.forEach(u => {
                 if (plansCount.hasOwnProperty(u.plan_type)) plansCount[u.plan_type]++;
@@ -388,22 +401,24 @@
 
             const ctx = document.getElementById('plansChart').getContext('2d');
             new Chart(ctx, {
-                type: 'bar',
+                type: 'doughnut',
                 data: {
                     labels: ['Digital Anual', 'Premium NFC', 'Business Pro'],
                     datasets: [{
-                        label: 'Assinaturas',
                         data: [plansCount.digital, plansCount.premium, plansCount.business],
                         backgroundColor: ['#ff6900', '#007bff', '#28a745'],
-                        borderRadius: 8
+                        borderWidth: 0,
+                        hoverOffset: 10
                     }]
                 },
                 options: {
-                    plugins: { legend: { display: false } },
-                    scales: { 
-                        y: { beginAtZero: true, ticks: { color: '#888' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        x: { ticks: { color: '#888' }, grid: { display: false } }
-                    }
+                    plugins: { 
+                        legend: { 
+                            position: 'right',
+                            labels: { color: '#888', font: { size: 10 } }
+                        }
+                    },
+                    cutout: '70%'
                 }
             });
         }
