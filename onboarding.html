@@ -192,16 +192,19 @@
         loadUserName();
         checkPendingPix();
 
-        // Garantir que a verificação inicie mesmo se o nome demorar a carregar
+        // Garantir que a verificação inicie imediatamente
         const lastPaymentId = localStorage.getItem('last_payment_id');
         if (lastPaymentId) {
-            console.log("Iniciando polling para o pagamento:", lastPaymentId);
+            console.log("Iniciando busca por sessão para o pagamento:", lastPaymentId);
             window.supabaseClient.auth.getSession().then(({data}) => {
-                if (data.session) {
-                    startPaymentPolling(lastPaymentId, data.session.user.id);
-                }
+                const userId = data.session ? data.session.user.id : null;
+                console.log("Sessão carregada. UserID:", userId);
+                
+                // Mesmo sem sessão (caso demore), tentamos iniciar com o ID do pagamento
+                startPaymentPolling(lastPaymentId, userId);
             });
         } else {
+            console.log("Nenhum ID de pagamento encontrado no localStorage.");
             document.getElementById('payment-status').innerHTML = "<i class='fas fa-exclamation-circle'></i> Aguardando início do pagamento...";
         }
     </script>
