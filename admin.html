@@ -425,28 +425,35 @@
 
             // Tabela CLIENTES (Completa)
             const clientesTable = document.getElementById('full-users-table');
-            if (users.length === 0) {
+            console.log("Dados recebidos do Supabase:", users); // Log para depuração
+            
+            if (!users || users.length === 0) {
                 clientesTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 50px; color: #666;">Nenhum cliente encontrado no banco de dados.</td></tr>';
             } else {
                 clientesTable.innerHTML = users.map(u => {
-                    const expiration = calculateExpiration(u.created_at);
-                    const address = u.address_street ? `${u.address_street}, ${u.address_number} - ${u.address_city}` : '<span style="color: #555;">Somente Digital</span>';
-                    
-                    return `
-                    <tr>
-                        <td>
-                            <div style="font-weight: 600;">${u.name || 'Sem nome'}</div>
-                            <div style="font-size: 0.75rem; color: #666;">${u.email || u.phone || ''}</div>
-                        </td>
-                        <td>${u.plan_type ? u.plan_type.toUpperCase() : 'N/A'}</td>
-                        <td style="${expiration.style}">${u.payment_status === 'confirmed' ? expiration.days + ' dias' : '-'}</td>
-                        <td style="font-size: 0.8rem;">${address}</td>
-                        <td>
-                            <a href="https://wa.me/55${u.phone}?text=Olá ${u.name}, sua renovação do Tagscard está próxima!" target="_blank" style="color: #25d366; margin-right: 10px;"><i class="fab fa-whatsapp"></i></a>
-                            <a href="profile.html?id=${u.id}" target="_blank" style="color: var(--primary-color);"><i class="fas fa-external-link-alt"></i></a>
-                        </td>
-                    </tr>
-                    `;
+                    try {
+                        const expiration = calculateExpiration(u.created_at || new Date());
+                        const address = u.address_street ? `${u.address_street}, ${u.address_number} - ${u.address_city}` : '<span style="color: #555;">Somente Digital</span>';
+                        
+                        return `
+                        <tr>
+                            <td>
+                                <div style="font-weight: 600;">${u.name || 'Sem nome'}</div>
+                                <div style="font-size: 0.75rem; color: #666;">${u.email || u.phone || 'Sem contato'}</div>
+                            </td>
+                            <td>${(u.plan_type || 'N/A').toUpperCase()}</td>
+                            <td style="${expiration.style}">${u.payment_status === 'confirmed' ? (expiration.days + ' dias') : '-'}</td>
+                            <td style="font-size: 0.8rem;">${address}</td>
+                            <td>
+                                <a href="https://wa.me/55${u.phone || ''}?text=Olá ${u.name || ''}, sua renovação do Tagscard está próxima!" target="_blank" style="color: #25d366; margin-right: 10px;"><i class="fab fa-whatsapp"></i></a>
+                                <a href="profile.html?id=${u.id}" target="_blank" style="color: var(--primary-color);"><i class="fas fa-external-link-alt"></i></a>
+                            </td>
+                        </tr>
+                        `;
+                    } catch (e) {
+                        console.error("Erro ao renderizar linha do cliente:", u, e);
+                        return '';
+                    }
                 }).join('');
             }
 
