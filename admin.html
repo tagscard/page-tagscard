@@ -292,15 +292,16 @@
     <script type="module">
         import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
         
-        // Inicializar Supabase manualmente se o CDN não expor globalmente como esperado em módulos
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Inicializar Supabase garantindo compatibilidade com o CDN global
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const ADMIN_EMAIL = 'admin@tagscard.com.br'; // Altere conforme necessário
+        const ADMIN_EMAIL = 'admin@tagscard.com.br'.toLowerCase();
 
         // Verificar Sessão
         async function checkSession() {
             const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session && session.user.email === ADMIN_EMAIL) {
+            console.log("Sessão atual:", session);
+            if (session && session.user.email.toLowerCase() === ADMIN_EMAIL) {
                 document.getElementById('auth-overlay').style.display = 'none';
                 loadDashboardData();
             }
@@ -310,20 +311,27 @@
         // Login Admin
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
-            const email = document.getElementById('admin-email').value;
+            const btn = e.target.querySelector('button');
+            const email = document.getElementById('admin-email').value.trim().toLowerCase();
             const password = document.getElementById('admin-password').value;
             
+            btn.innerText = 'Verificando...';
+
             if (email !== ADMIN_EMAIL) {
-                document.getElementById('login-error').innerText = 'E-mail não autorizado.';
+                document.getElementById('login-error').innerText = 'E-mail não autorizado para este painel.';
                 document.getElementById('login-error').style.display = 'block';
+                btn.innerText = 'Entrar no Dashboard';
                 return;
             }
 
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            
             if (error) {
-                document.getElementById('login-error').innerText = error.message;
+                document.getElementById('login-error').innerText = "Erro: " + error.message;
                 document.getElementById('login-error').style.display = 'block';
+                btn.innerText = 'Entrar no Dashboard';
             } else {
+                console.log("Login realizado com sucesso!");
                 window.location.reload();
             }
         };
