@@ -81,6 +81,9 @@
                 </div>
             </div>
             <p style="font-size: 0.7rem; margin-top: 15px;"><i class="fas fa-info-circle"></i> O acesso total ao painel será liberado após a confirmação.</p>
+            <div id="payment-status" style="font-size: 0.75rem; margin-top: 10px; color: var(--text-muted); font-weight: 600;">
+                <i class="fas fa-spinner fa-spin"></i> Verificando status do pagamento...
+            </div>
         </div>
 
         <div class="steps">
@@ -186,6 +189,19 @@
 
         loadUserName();
         checkPendingPix();
+
+        // Garantir que a verificação inicie mesmo se o nome demorar a carregar
+        const lastPaymentId = localStorage.getItem('last_payment_id');
+        if (lastPaymentId) {
+            console.log("Iniciando polling para o pagamento:", lastPaymentId);
+            window.supabaseClient.auth.getSession().then(({data}) => {
+                if (data.session) {
+                    startPaymentPolling(lastPaymentId, data.session.user.id);
+                }
+            });
+        } else {
+            document.getElementById('payment-status').innerHTML = "<i class='fas fa-exclamation-circle'></i> Aguardando início do pagamento...";
+        }
     </script>
 </body>
 </html>
