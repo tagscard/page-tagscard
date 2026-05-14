@@ -184,6 +184,7 @@
             }
 
             console.log("Buscando perfil para o ID:", profileId);
+            try {
             let { data: profile, error } = await window.supabaseClient
                 .from('profiles')
                 .select('*')
