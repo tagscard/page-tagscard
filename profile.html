@@ -183,14 +183,34 @@
                 profileId = session.user.id;
             }
 
-            try {
-                const { data: profile, error } = await window.supabaseClient
+            console.log("Buscando perfil para o ID:", profileId);
+            let { data: profile, error } = await window.supabaseClient
+                .from('profiles')
+                .select('*')
+                .eq('id', profileId)
+                .maybeSingle();
+
+            // FALLBACK: Se não achar pelo ID, tentar pelo E-mail (Caso de Selma)
+            if (!profile && session) {
+                console.log("Perfil não encontrado pelo ID. Tentando buscar pelo e-mail...");
+                const { data: profileByEmail, error: emailError } = await window.supabaseClient
                     .from('profiles')
                     .select('*')
-                    .eq('id', profileId)
-                    .single();
+                    .eq('email', session.user.email)
+                    .maybeSingle();
 
-            if (error || !profile) {
+                if (profileByEmail) {
+                    console.log("Perfil encontrado pelo e-mail! Corrigindo ID no banco...");
+                    profile = profileByEmail;
+                    // Auto-correção de ID para o futuro
+                    await window.supabaseClient
+                        .from('profiles')
+                        .update({ id: session.user.id })
+                        .eq('email', session.user.email);
+                }
+            }
+
+            if (!profile) {
                 document.body.innerHTML = '<div style="color: white; text-align: center; padding: 100px; font-family: Inter, sans-serif;"><h2>Perfil não encontrado</h2><p>Este perfil ainda não foi configurado.</p></div>';
                 return;
             }
