@@ -261,7 +261,7 @@
             }
 
             // Incrementar contador de visitas (silenciosamente)
-            supabase.rpc('increment_visits', { profile_id: profileId });
+            window.supabaseClient.rpc('increment_visits', { profile_id: profileId });
 
             } catch (error) {
                 console.error("Erro ao carregar perfil:", error);
