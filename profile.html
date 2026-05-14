@@ -62,6 +62,11 @@
             </div>
         </footer>
     </header>
+    
+    <!-- Botão de Menu Mobile -->
+    <button class="mobile-nav-toggle" id="mobile-nav-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
 
     <!-- Conteúdo Principal -->
     <main id="main-content" class="main-content">
@@ -247,26 +252,33 @@
             } finally {
                 // Remover Loader
                 setTimeout(() => {
-                    // Configurar Efeito Typed.js na Bio (Separando por |)
+                    // 1. Animação do Topo (Hero) - Digitação
                     if (currentProfile && currentProfile.bio) {
-                        const bioStrings = currentProfile.bio.split('|').map(s => s.trim());
-                        new Typed('#display-bio', {
-                            strings: bioStrings,
-                            typeSpeed: 50,
+                        const typedStrings = currentProfile.bio.split('|').map(s => s.trim());
+                        new Typed('.typed', {
+                            strings: typedStrings,
+                            typeSpeed: 60,
                             backSpeed: 30,
                             backDelay: 2000,
                             loop: true
                         });
                     }
 
-                    // Atualizar Fotos com fallback
+                    // 2. Bio do "Sobre" (ESTÁTICA)
+                    const displayBio = document.getElementById('display-bio');
+                    if (currentProfile && currentProfile.bio && displayBio) {
+                        // Mostra o texto completo, mas remove as barras | para ficar bonito
+                        displayBio.innerText = currentProfile.bio.replaceAll('|', ' ');
+                    }
+
+                    // Atualizar Fotos
                     const profileImg = document.getElementById('profile-img');
                     if (currentProfile && currentProfile.avatar_url && profileImg) {
                         profileImg.src = currentProfile.avatar_url;
                     }
-                    const heroImg = document.getElementById('hero-img');
-                    if (currentProfile && currentProfile.hero_url && heroImg) {
-                        heroImg.src = currentProfile.hero_url;
+                    const sidebarImg = document.getElementById('display-avatar-sidebar');
+                    if (currentProfile && currentProfile.avatar_url && sidebarImg) {
+                        sidebarImg.src = currentProfile.avatar_url;
                     }
 
                     const loader = document.getElementById('loader');
@@ -276,6 +288,16 @@
                     }
                 }, 800);
             }
+        }
+
+        // Lógica do Menu Mobile
+        const mobileNavToggle = document.getElementById('mobile-nav-toggle');
+        if (mobileNavToggle) {
+            mobileNavToggle.addEventListener('click', function() {
+                document.body.classList.toggle('mobile-nav-active');
+                this.querySelector('i').classList.toggle('fa-bars');
+                this.querySelector('i').classList.toggle('fa-times');
+            });
         }
 
         async function logout() {
