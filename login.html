@@ -322,17 +322,27 @@
                 // Verificar status do pagamento no perfil
                 const { data: profile, error: profError } = await window.supabaseClient
                     .from('profiles')
-                    .select('payment_status')
+                    .select('payment_status, asaas_payment_id')
                     .eq('id', data.user.id)
                     .single();
 
                 if (profile && profile.payment_status === 'pending') {
+                    // Tentar verificar pagamento agora se tivermos um ID
+                    if (profile.asaas_payment_id) {
+                        btn.innerText = 'Verificando Pagamento...';
+                        const vResp = await fetch(`/api/verify?paymentId=${profile.asaas_payment_id}&userId=${data.user.id}`);
+                        const vData = await vResp.json();
+
+                        if (vData.isPaid) {
+                            window.location.href = 'profile.html';
+                            return;
+                        }
+                    }
+
                     errorMsg.innerText = "Após a confirmação de pagamento o Painel estará acessível.";
                     errorMsg.style.display = 'block';
                     btn.innerText = 'Entrar no Painel';
                     btn.disabled = false;
-                    // Opcional: fazer logout se quiser ser rigoroso
-                    // await window.supabaseClient.auth.signOut();
                 } else {
                     window.location.href = 'profile.html';
                 }
