@@ -162,6 +162,49 @@
                     </div>
                 </div>
 
+                <!-- Campos de Endereço (Aparecem apenas se o plano tiver cartão físico) -->
+                <div id="shipping-fields" style="display: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 20px;">
+                    <h3 style="font-size: 1rem; color: var(--primary-color); margin-bottom: 15px;"><i class="fas fa-truck"></i> Endereço para Entrega do Cartão</h3>
+                    
+                    <div class="form-group">
+                        <label>CEP</label>
+                        <input type="text" id="ship-cep" placeholder="00000-000">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Rua/Avenida</label>
+                            <input type="text" id="ship-street" placeholder="Nome da rua">
+                        </div>
+                        <div class="form-group">
+                            <label>Número</label>
+                            <input type="text" id="ship-number" placeholder="123">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Bairro</label>
+                            <input type="text" id="ship-neighborhood" placeholder="Bairro">
+                        </div>
+                        <div class="form-group">
+                            <label>Complemento</label>
+                            <input type="text" id="ship-complement" placeholder="Apto, Bloco, etc.">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Cidade</label>
+                            <input type="text" id="ship-city" placeholder="Cidade">
+                        </div>
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <input type="text" id="ship-state" placeholder="UF">
+                        </div>
+                    </div>
+                </div>
+
                 <input type="hidden" id="selected-method" value="pix">
 
                 <p id="checkoutError" style="color: #ff4444; font-size: 0.85rem; margin-bottom: 15px; display: none;"></p>
@@ -223,14 +266,47 @@
         const plan = urlParams.get('plan') || 'premium';
 
         const plans = {
-            digital: { name: 'Digital Anual', price: 'R$ 49,90/ano' },
-            premium: { name: 'Premium NFC', price: 'R$ 149,00/ano' },
-            business: { name: 'Business Pro', price: 'R$ 399,00/ano' }
+            digital: { 
+                name: 'Digital Anual', 
+                price: 'R$ 49,90/ano', 
+                hasPhysical: false,
+                benefits: ['Perfil Digital Customizável', 'QR Code de Emergência', 'Edição Ilimitada']
+            },
+            premium: { 
+                name: 'Premium NFC', 
+                price: 'R$ 149,00/ano', 
+                hasPhysical: true,
+                benefits: ['Perfil Digital Customizável', 'Cartão Físico com Chip NFC', 'QR Code de Emergência', 'Edição Ilimitada']
+            },
+            business: { 
+                name: 'Business Pro', 
+                price: 'R$ 399,00/ano', 
+                hasPhysical: true,
+                benefits: ['Perfil Digital Customizável', 'Cartão Físico com Chip NFC', 'Suporte Prioritário', 'Painel de Gestão']
+            }
         };
 
         if (plans[plan]) {
-            document.getElementById('plan-name').innerText = plans[plan].name;
-            document.getElementById('plan-price').innerText = plans[plan].price;
+            const p = plans[plan];
+            document.getElementById('plan-name').innerText = p.name;
+            document.getElementById('plan-price').innerText = p.price;
+
+            // Ajustar Benefícios
+            const list = document.getElementById('benefits-list');
+            list.innerHTML = p.benefits.map(b => `<li style="margin-bottom: 5px;"><i class="fas fa-check"></i> ${b}</li>`).join('');
+
+            // Mostrar/Esconder Frete no Resumo
+            document.getElementById('shipping-row').style.display = p.hasPhysical ? 'flex' : 'none';
+
+            // Mostrar/Esconder Campos de Endereço no Formulário
+            if (p.hasPhysical) {
+                document.getElementById('shipping-fields').style.display = 'block';
+                document.getElementById('ship-cep').required = true;
+                document.getElementById('ship-street').required = true;
+                document.getElementById('ship-number').required = true;
+                document.getElementById('ship-city').required = true;
+                document.getElementById('ship-state').required = true;
+            }
         }
 
         // Troca de Métodos de Pagamento
@@ -322,7 +398,14 @@
                             name: name, 
                             plan_type: plan,
                             payment_status: 'pending',
-                            social_links: { whatsapp: phone }
+                            social_links: { whatsapp: phone },
+                            address_cep: document.getElementById('ship-cep').value || null,
+                            address_street: document.getElementById('ship-street').value || null,
+                            address_number: document.getElementById('ship-number').value || null,
+                            address_complement: document.getElementById('ship-complement').value || null,
+                            address_neighborhood: document.getElementById('ship-neighborhood').value || null,
+                            address_city: document.getElementById('ship-city').value || null,
+                            address_state: document.getElementById('ship-state').value || null
                         }
                     ]);
 

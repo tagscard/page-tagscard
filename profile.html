@@ -240,6 +240,9 @@
                 document.getElementById('admin-toolbar').style.display = 'flex';
             }
 
+            // Incrementar contador de visitas (silenciosamente)
+            supabase.rpc('increment_visits', { profile_id: profileId });
+
             // Listener para VCard
             document.getElementById('save-vcard').onclick = () => {
                 if (currentProfile) window.downloadVCard(currentProfile);
