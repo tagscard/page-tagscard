@@ -1,5 +1,3 @@
-const { createClient } = require('@supabase/supabase-js');
-
 module.exports = async (req, res) => {
     const { paymentId, userId } = req.query;
 
@@ -12,37 +10,32 @@ module.exports = async (req, res) => {
     const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     try {
-        // 1. Consultar status no Asaas
         const ASAAS_URL = process.env.ASAAS_URL || 'https://www.asaas.com/api/v3';
-        console.log(`Verificando pagamento ${paymentId} para usuário ${userId}...`);
 
+        // 1. Consultar status no Asaas
         const response = await fetch(`${ASAAS_URL}/payments/${paymentId}`, {
             headers: { 'access_token': ASAAS_API_KEY }
         });
         const payment = await response.json();
 
         if (payment.errors) {
-            console.error("Erro Asaas:", payment.errors);
             return res.status(400).json({ error: payment.errors[0].description });
         }
 
-        // Status possíveis: RECEIVED, CONFIRMED, OVERDUE, etc.
         const isPaid = ['RECEIVED', 'CONFIRMED'].includes(payment.status);
-        console.log(`Status no Asaas: ${payment.status} | Pago: ${isPaid}`);
 
         if (isPaid) {
-            // 2. Atualizar Supabase usando Service Role
-            const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-            const { error } = await supabase
-                .from('profiles')
-                .update({ payment_status: 'confirmed' })
-                .eq('id', userId);
-
-            if (error) {
-                console.error("Erro Supabase:", error);
-                throw error;
-            }
-            console.log("Perfil atualizado no Supabase com sucesso.");
+            // 2. Atualizar Supabase via REST API direto (Zero dependências)
+            await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_SERVICE_ROLE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=minimal'
+                },
+                body: JSON.stringify({ payment_status: 'confirmed' })
+            });
         }
 
         return res.status(200).json({ 
@@ -51,7 +44,6 @@ module.exports = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Check Payment Error:", error);
         return res.status(500).json({ error: error.message });
     }
 };
