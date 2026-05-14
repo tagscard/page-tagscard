@@ -277,9 +277,9 @@
             <div class="card">
                 <h3><i class="fas fa-rocket"></i> Marketing & Hero</h3>
                 <div class="form-group">
-                    <label><i class="fas fa-keyboard"></i> Frases de Impacto (Efeito Typed)</label>
+                    <label><i class="fas fa-keyboard"></i> Especialidades (Efeito de Digitação)</label>
                     <input type="text" id="input-typed" placeholder="Ex: Designer, Estrategista, Palestrante (separe por vírgula)">
-                    <small style="color: var(--text-muted); font-size: 0.75rem;">Estas frases aparecem logo abaixo do seu nome com um efeito de digitação.</small>
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">Estas palavras aparecerão logo abaixo do seu nome com um efeito dinâmico.</small>
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-image"></i> Imagem de Fundo (Hero Background)</label>
@@ -293,9 +293,9 @@
 
             <!-- Sobre Você -->
             <div class="card">
-                <h3><i class="fas fa-address-card"></i> Sobre Você</h3>
+                <h3><i class="fas fa-address-card"></i> Sobre Você (Bio Independente)</h3>
                 <div class="form-group">
-                    <label>Biografia Detalhada</label>
+                    <label>Sua Trajetória e Descrição</label>
                     <textarea id="input-bio" maxlength="500" placeholder="Conte mais sobre sua trajetória, especialidades e como você pode ajudar seus clientes..."></textarea>
                     <small class="char-counter" id="bio-counter">0/500</small>
                 </div>
@@ -508,6 +508,13 @@
             if (!currentUser) return;
             
             const btn = e.target.querySelector('.btn-save');
+            
+            // Validação Básica
+            if (document.getElementById('check-pix').checked && !document.getElementById('val-pix').value) {
+                alert('Por favor, insira uma chave PIX ou desative a seção de pagamento.');
+                return;
+            }
+
             btn.innerText = 'Salvando...';
             btn.disabled = true;
 

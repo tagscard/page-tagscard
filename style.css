@@ -98,6 +98,10 @@ body {
     font-size: 0.95rem;
 }
 
+.menu-toggle {
+    display: none;
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;
@@ -608,8 +612,48 @@ body {
         grid-template-columns: 1fr;
     }
 
+    .menu-toggle {
+        display: block;
+        font-size: 1.8rem;
+        cursor: pointer;
+        color: var(--text-color);
+        z-index: 1001;
+    }
+
     .nav-list {
-        display: none;
+        position: fixed;
+        right: -100%;
+        top: 0;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(15px);
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px;
+        transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        border-left: 1px solid var(--glass-border);
+        box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    }
+
+    .nav-list.active {
+        right: 0;
+    }
+
+    .nav-list li {
+        width: 100%;
+        text-align: center;
+    }
+
+    .nav-list a {
+        font-size: 1.2rem;
+        display: block;
+        padding: 15px;
+    }
+
+    .nav-login {
+        margin: 10px 0;
     }
 
     .cta-box h2 {

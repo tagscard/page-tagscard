@@ -11,6 +11,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Overlay de Carregamento -->
+    <div id="loader" class="loader-overlay">
+        <div class="loader"></div>
+    </div>
+
     <!-- Barra de Administração (Flutuante) -->
     <div id="admin-toolbar" class="admin-toolbar" style="display: none;">
         <span><i class="fas fa-user-cog"></i> Modo Edição</span>
@@ -128,8 +133,11 @@
                     <img id="profile-qr-img" src="" alt="QR Code do Perfil">
                 </div>
                 <div class="share-actions">
-                    <button onclick="copyProfileLink()" class="btn-copy-link">
+                    <button onclick="copyProfileLink()" class="btn-copy-link" style="margin-bottom: 10px;">
                         <i class="fas fa-link"></i> Copiar Link do Perfil
+                    </button>
+                    <button onclick="downloadProfileQR()" class="btn-download-qr">
+                        <i class="fas fa-download"></i> Baixar QR Code
                     </button>
                 </div>
             </div>
@@ -146,9 +154,12 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/vcard.js"></script>
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
 
     <script>
+        let currentProfile = null;
+
         // Carregar dados dinâmicos do Supabase
         async function loadProfileData() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -161,21 +172,19 @@
                 profileId = session.user.id;
             }
 
-            if (!profileId) {
-                document.body.innerHTML = '<div style="color: white; text-align: center; padding: 100px; font-family: Inter, sans-serif;"><h2>Perfil não encontrado</h2><p>ID de acesso inválido.</p><a href="index.html" style="color: #ff6900;">Voltar ao início</a></div>';
-                return;
-            }
-
-            const { data: profile, error } = await window.supabaseClient
-                .from('profiles')
-                .select('*')
-                .eq('id', profileId)
-                .single();
+            try {
+                const { data: profile, error } = await window.supabaseClient
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', profileId)
+                    .single();
 
             if (error || !profile) {
                 document.body.innerHTML = '<div style="color: white; text-align: center; padding: 100px; font-family: Inter, sans-serif;"><h2>Perfil não encontrado</h2><p>Este perfil ainda não foi configurado.</p></div>';
                 return;
             }
+
+            currentProfile = profile;
 
             // Aplicar Dados
             const nameElements = ['display-name-sidebar', 'display-name-hero'];
@@ -226,6 +235,25 @@
             if (session && session.user.id === profileId) {
                 document.getElementById('admin-toolbar').style.display = 'flex';
             }
+
+            // Listener para VCard
+            document.getElementById('save-vcard').onclick = () => {
+                if (currentProfile) window.downloadVCard(currentProfile);
+            };
+
+            } catch (error) {
+                console.error("Erro ao carregar perfil:", error);
+                document.body.innerHTML = '<div style="color: white; text-align: center; padding: 100px; font-family: Inter, sans-serif;"><h2>Erro técnico</h2><p>Não foi possível carregar as informações.</p></div>';
+            } finally {
+                // Remover Loader
+                setTimeout(() => {
+                    const loader = document.getElementById('loader');
+                    if (loader) {
+                        loader.style.opacity = '0';
+                        setTimeout(() => loader.style.display = 'none', 500);
+                    }
+                }, 800);
+            }
         }
 
         async function logout() {
@@ -253,6 +281,19 @@
 
         function closeShareModal() {
             document.getElementById('share-modal').style.display = 'none';
+        }
+
+        async function downloadProfileQR() {
+            const qrImg = document.getElementById('profile-qr-img');
+            const response = await fetch(qrImg.src);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `qrcode_${currentProfile?.name?.replace(/\s+/g, '_') || 'perfil'}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function copyProfileLink() {

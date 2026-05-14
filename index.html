@@ -19,13 +19,16 @@
             <a href="#" class="logo">
                 <img src="assets/logo.png" alt="Tagscard Logo" style="height: 80px;">
             </a>
-            <ul class="nav-list">
-                <li><a href="#home">Início</a></li>
-                <li><a href="#features">Benefícios</a></li>
-                <li><a href="#how-it-works">Como Funciona</a></li>
+            <ul class="nav-list" id="nav-menu">
+                <li><a href="#home" onclick="toggleMenu()">Início</a></li>
+                <li><a href="#features" onclick="toggleMenu()">Benefícios</a></li>
+                <li><a href="#how-it-works" onclick="toggleMenu()">Como Funciona</a></li>
                 <li><a href="login.html" class="nav-login">Entrar</a></li>
-                <li><a href="#pricing" class="btn btn-accent">Pedir Agora</a></li>
+                <li><a href="#pricing" class="btn btn-accent" onclick="toggleMenu()">Pedir Agora</a></li>
             </ul>
+            <div class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </div>
         </nav>
     </header>
 
@@ -277,5 +280,14 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
     <script src="main.js"></script>
+    <script>
+        function toggleMenu() {
+            const nav = document.getElementById('nav-menu');
+            const toggle = document.getElementById('menu-toggle');
+            nav.classList.toggle('active');
+            toggle.querySelector('i').classList.toggle('fa-bars');
+            toggle.querySelector('i').classList.toggle('fa-times');
+        }
+    </script>
 </body>
 </html>

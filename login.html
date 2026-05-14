@@ -11,155 +11,236 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+            background: #050505;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 1400px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            align-items: center;
+            gap: 40px;
+        }
+
+        @media (max-width: 1024px) {
+            .login-wrapper { grid-template-columns: 1fr; gap: 60px; }
+            .login-visual { display: none; }
+            .login-info { text-align: center; }
+            .back-to-site { position: static; margin: 0 auto 30px; width: fit-content; }
+        }
+
+        /* Coluna da Esquerda: Texto */
+        .login-info {
+            position: relative;
+        }
+
+        .login-info h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .login-info .highlight {
+            color: var(--primary-color);
+        }
+
+        .login-info p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        /* Coluna Central: Imagem */
+        .login-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-visual img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 30px;
+            box-shadow: 0 0 50px rgba(255, 105, 0, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Coluna da Direita: Card */
+        .login-container {
+            display: flex;
+            justify-content: center;
         }
 
         .login-card {
-            background: var(--bg-card);
+            background: rgba(17, 17, 17, 0.8);
             border: 1px solid var(--glass-border);
             padding: 40px;
-            border-radius: 24px;
+            border-radius: 32px;
             width: 100%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            max-width: 420px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.6);
         }
 
-        .login-logo {
-            font-size: 2rem;
-            color: var(--primary-color);
-            margin-bottom: 30px;
-            display: inline-block;
-        }
-
-        .login-header h2 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-        }
-
-        .login-header p {
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            font-size: 0.9rem;
-        }
-
-        .form-group {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .form-group input {
-            width: 100%;
+        .back-to-site {
+            margin-bottom: 40px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             background: rgba(255,255,255,0.05);
+            padding: 10px 20px;
+            border-radius: 50px;
             border: 1px solid var(--glass-border);
+            transition: var(--transition);
+            width: fit-content;
+        }
+
+        .back-to-site:hover { background: var(--primary-color); border-color: var(--primary-color); transform: translateX(-5px); }
+
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); }
+        .form-group input { 
+            width: 100%;
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--glass-border); 
             padding: 14px;
             border-radius: 12px;
             color: white;
             font-family: inherit;
             transition: var(--transition);
         }
+        .form-group input:focus { outline: none; border-color: var(--primary-color); background: rgba(255,255,255,0.08); }
 
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            background: rgba(255,255,255,0.08);
-        }
-
-        .password-container {
-            position: relative;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--text-muted);
-            transition: var(--transition);
-        }
-
-        .toggle-password:hover {
-            color: var(--primary-color);
-        }
+        .password-container { position: relative; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); }
 
         .forgot-password {
             display: block;
             text-align: right;
-            margin-top: 8px;
+            margin-top: 10px;
             font-size: 0.75rem;
             color: var(--text-muted);
             text-decoration: none;
             transition: var(--transition);
         }
+        .forgot-password:hover { color: white; }
 
-        .forgot-password:hover {
-            color: white;
-        }
+        .login-footer { margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; text-align: center; }
+        .login-footer a { color: var(--primary-color); font-weight: 700; text-decoration: none; }
 
-        .btn-login {
-            width: 100%;
-            margin-top: 10px;
-            margin-bottom: 20px;
-        }
+        .reset-form { display: none; }
+        .success-reset { display: none; color: #28a745; background: rgba(40, 167, 69, 0.1); padding: 15px; border-radius: 12px; font-size: 0.85rem; margin-top: 20px; }
+        
+        #backToLogin { display: block; text-align: center; margin-top: 15px; color: var(--text-muted); text-decoration: none; font-size: 0.8rem; }
+        #backToLogin:hover { color: white; }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-to-site">
-        <i class="fas fa-arrow-left"></i> Voltar ao site
-    </a>
-
-    <!-- Supabase CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="assets/js/supabase-client.js"></script>
-
-    <div class="login-card">
-        <div class="login-logo">
-            <img src="assets/logo.png" alt="Tagscard Logo" style="height: 50px;">
-        </div>
-        <div class="login-header">
-            <h2>Bem-vindo de volta</h2>
-            <p>Gerencie seu perfil digital Tagscard</p>
+    <div class="login-wrapper">
+        <!-- Coluna Esquerda -->
+        <div class="login-info">
+            <a href="index.html" class="back-to-site">
+                <i class="fas fa-arrow-left"></i> Voltar ao site
+            </a>
+            <h1>O futuro do networking para <br><span class="highlight typed" data-typed-items="Médicos, Advogados, Empresas, Freelancers, Vendedores"></span></h1>
+            <p>Substitua o papel pela tecnologia. Compartilhe seu contato, redes sociais e portfólio instantaneamente via NFC ou QR Code.</p>
         </div>
 
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" placeholder="seu@email.com" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Senha</label>
-                <div class="password-container">
-                    <input type="password" id="password" placeholder="••••••••" required>
-                    <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+        <!-- Coluna Central -->
+        <div class="login-visual">
+            <img src="assets/login-hero.png" alt="Tagscard Futurista">
+        </div>
+
+        <!-- Coluna Direita -->
+        <div class="login-container">
+            <div class="login-card">
+                <div class="login-logo">
+                    <img src="assets/logo.png" alt="Tagscard Logo" style="height: 40px;">
                 </div>
-                <a href="#" class="forgot-password" id="forgotBtn">Esqueci minha senha</a>
+                <div class="login-header">
+                    <h2>Bem-vindo de volta</h2>
+                    <p>Gerencie seu perfil digital Tagscard</p>
+                </div>
+
+                <!-- Formulário de Login -->
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <div class="password-container">
+                            <input type="password" id="password" placeholder="••••••••" required>
+                            <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                        </div>
+                        <a href="#" class="forgot-password" id="showForgot">Esqueci minha senha</a>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-login">Entrar no Painel</button>
+                </form>
+
+                <!-- Formulário de Recuperação -->
+                <form id="forgotForm" class="reset-form">
+                    <div class="form-group">
+                        <label for="reset-email">Seu e-mail de cadastro</label>
+                        <input type="email" id="reset-email" placeholder="seu@email.com" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-login">Enviar Link de Recuperação</button>
+                    <a href="#" id="backToLogin" style="color: var(--text-muted); text-decoration: none; font-size: 0.8rem;">Voltar para o Login</a>
+                </form>
+
+                <div id="successMsg" class="success-reset">
+                    <i class="fas fa-check-circle"></i> E-mail enviado! Verifique seu inbox.
+                </div>
+
+                <div id="loginError" style="color: #ff4444; font-size: 0.8rem; margin-top: 15px; display: none; padding: 10px; border-radius: 8px; background: rgba(255,68,68,0.1);">
+                    Erro ao entrar.
+                </div>
+
+                <div class="login-footer">
+                    Ainda não tem um Tagscard? <a href="index.html#pricing">Pedir agora</a>
+                </div>
             </div>
-            
-            <button type="submit" class="btn btn-primary btn-login">Entrar no Painel</button>
-        </form>
-
-        <div id="loginError" style="color: #ff4444; font-size: 0.85rem; margin-top: 15px; display: none; padding: 10px; border-radius: 8px; background: rgba(255,68,68,0.1);">
-            Erro ao entrar. Verifique suas credenciais.
-        </div>
-
-        <div class="login-footer">
-            Ainda não tem um Tagscard? <a href="index.html#pricing">Pedir agora</a>
         </div>
     </div>
 
+    <!-- Supabase & Vendor Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="assets/js/supabase-client.js"></script>
+    <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
+
     <script>
+        // Efeito Typed
+        const typed = document.querySelector('.typed');
+        if (typed) {
+            const items = typed.getAttribute('data-typed-items').split(',');
+            new Typed('.typed', {
+                strings: items,
+                loop: true,
+                typeSpeed: 100,
+                backSpeed: 50,
+                backDelay: 2000
+            });
+        }
         // Toggle de Senha
         const togglePassword = document.querySelector('#togglePassword');
         const passwordInput = document.querySelector('#password');
@@ -170,10 +251,50 @@
             this.classList.toggle('fa-eye-slash');
         });
 
-        // Esqueci a Senha
-        document.getElementById('forgotBtn').addEventListener('click', function(e) {
+        // Alternar entre Login e Recuperação
+        const loginForm = document.getElementById('loginForm');
+        const forgotForm = document.getElementById('forgotForm');
+        const showForgot = document.getElementById('showForgot');
+        const backToLogin = document.getElementById('backToLogin');
+
+        showForgot.addEventListener('click', (e) => {
             e.preventDefault();
-            alert('Para recuperar sua senha, entre em contato com nosso suporte via WhatsApp.');
+            loginForm.style.display = 'none';
+            forgotForm.style.display = 'block';
+            document.querySelector('.login-header h2').innerText = "Recuperar Senha";
+            document.querySelector('.login-header p').innerText = "Enviaremos um link para o seu e-mail";
+        });
+
+        backToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.style.display = 'block';
+            forgotForm.style.display = 'none';
+            document.querySelector('.login-header h2').innerText = "Bem-vindo de volta";
+            document.querySelector('.login-header p').innerText = "Gerencie seu perfil digital Tagscard";
+        });
+
+        // Lógica de Recuperação
+        forgotForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('reset-email').value;
+            const btn = e.target.querySelector('button');
+            const successMsg = document.getElementById('successMsg');
+            
+            btn.innerText = 'Enviando...';
+            btn.disabled = true;
+
+            const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + '/reset-password.html',
+            });
+
+            if (error) {
+                alert('Erro: ' + error.message);
+                btn.innerText = 'Enviar Link de Recuperação';
+                btn.disabled = false;
+            } else {
+                forgotForm.style.display = 'none';
+                successMsg.style.display = 'block';
+            }
         });
 
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
