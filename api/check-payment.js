@@ -1,4 +1,4 @@
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     const { paymentId, userId } = req.query;
 
     if (!paymentId || !userId) {
@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
         const isPaid = ['RECEIVED', 'CONFIRMED'].includes(payment.status);
 
         if (isPaid) {
-            // 2. Atualizar Supabase via REST API direto (Zero dependências)
+            // 2. Atualizar Supabase via REST API direto
             await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}`, {
                 method: 'PATCH',
                 headers: {
@@ -46,4 +46,4 @@ module.exports = async (req, res) => {
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
-};
+}
