@@ -461,6 +461,7 @@
             updateStats(users);
             renderUsersTable(users);
             renderSalesTable(users);
+            renderCharts(users);
             updateFilteredCount(users.length);
         }
 
@@ -578,11 +579,13 @@
         function renderSalesTable(users) {
             const confirmedUsers = users.filter(u => u.payment_status === 'confirmed');
             const salesTable = document.getElementById('sales-table');
+            if (!salesTable) return;
+
             salesTable.innerHTML = confirmedUsers.map(u => {
                 const value = u.plan_type === 'digital' ? 49.90 : (u.plan_type === 'premium' ? 149.00 : 399.00);
                 return `
                 <tr>
-                    <td>${u.name}</td>
+                    <td>${u.name || 'Sem nome'}</td>
                     <td>R$ ${value.toFixed(2)}</td>
                     <td>${new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
                     <td><span class="badge badge-confirmed">Pago</span></td>
@@ -591,29 +594,21 @@
             }).join('');
         }
 
-            // Tabela VENDAS
-            const salesTable = document.getElementById('sales-table');
-            salesTable.innerHTML = confirmedUsers.map(u => {
-                const value = u.plan_type === 'digital' ? 49.90 : (u.plan_type === 'premium' ? 149.00 : 399.00);
-                return `
-                <tr>
-                    <td>${u.name}</td>
-                    <td>R$ ${value.toFixed(2)}</td>
-                    <td>${new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
-                    <td><span class="badge badge-confirmed">Confirmado</span></td>
-                </tr>
-                `;
-            }).join('');
-
-            // Gráfico de Pizza (Doughnut)
-            // ... (mesmo código do gráfico)
+        function renderCharts(users) {
             const plansCount = { digital: 0, premium: 0, business: 0 };
             users.forEach(u => {
                 if (plansCount.hasOwnProperty(u.plan_type)) plansCount[u.plan_type]++;
             });
 
-            const ctx = document.getElementById('plansChart').getContext('2d');
-            new Chart(ctx, {
+            const canvas = document.getElementById('plansChart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            
+            // Destruir gráfico anterior se existir para evitar bugs de sobreposição
+            if (window.myChart) window.myChart.destroy();
+
+            window.myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['Digital Anual', 'Premium NFC', 'Business Pro'],
@@ -625,6 +620,8 @@
                     }]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { 
                         legend: { 
                             position: 'right',
