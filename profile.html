@@ -54,9 +54,6 @@
                     <i class="fas fa-share-alt"></i> Compartilhar Perfil
                 </button>
             </div>
-            <div class="manage-link">
-                <a href="login.html">Gerenciar Perfil</a>
-            </div>
         </footer>
     </header>
     
@@ -108,10 +105,7 @@
                         <span id="pix-key">...</span>
                         <div class="pix-actions">
                             <button class="copy-btn" onclick="copyPixKey()">
-                                <i class="far fa-copy"></i> Copiar
-                            </button>
-                            <button class="qr-btn" onclick="generateQRCode()">
-                                <i class="fas fa-qrcode"></i> QR Code PIX
+                                <i class="far fa-copy"></i> Copiar Chave PIX
                             </button>
                         </div>
                     </div>
@@ -372,10 +366,19 @@
         function openShareModal() {
             const modal = document.getElementById('share-modal');
             const qrImg = document.getElementById('profile-qr-img');
-            const profileUrl = window.location.href;
+            // Garantir que o link de compartilhamento use o ID público
+            const profileUrl = `${window.location.origin}${window.location.pathname}?id=${currentProfile.id}`;
             const color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim().replace('#', '');
             qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(profileUrl)}&color=${color}`;
             modal.style.display = 'flex';
+        }
+
+        function copyProfileLink() {
+            const profileUrl = `${window.location.origin}${window.location.pathname}?id=${currentProfile.id}`;
+            navigator.clipboard.writeText(profileUrl).then(() => {
+                showToast('Link público copiado!');
+                closeShareModal();
+            });
         }
 
         function closeShareModal() {

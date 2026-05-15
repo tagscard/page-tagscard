@@ -80,6 +80,7 @@ body {
     align-items: center;
     justify-content: center;
     transition: var(--transition);
+    text-decoration: none; /* Remover sublinhado */
 }
 
 .social-links a:hover {
