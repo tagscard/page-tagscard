@@ -617,3 +617,69 @@ body {
         display: block !important; /* Garantir que o conteúdo interno apareça */
     }
 }
+
+/* Modo Claro (Light Mode) */
+body.light-mode {
+    --bg-main: #f8f9fa;
+    --bg-sidebar: #ffffff;
+    --text-white: #212529;
+    --text-muted: #6c757d;
+    --glass-border: rgba(0, 0, 0, 0.08);
+}
+
+body.light-mode .sidebar {
+    background: #ffffff;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.05);
+}
+
+body.light-mode .nav-menu a {
+    color: #444;
+}
+
+body.light-mode .nav-menu a i {
+    color: #888;
+}
+
+body.light-mode .nav-menu a.active, 
+body.light-mode .nav-menu a:hover {
+    color: var(--primary);
+}
+
+body.light-mode .card,
+body.light-mode .pix-box {
+    background: #ffffff;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.05);
+    color: #212529;
+}
+
+body.light-mode .section-title::after {
+    background: #e9ecef;
+}
+
+body.light-mode .profile-img img {
+    border-color: #f1f1f1;
+}
+
+body.light-mode .social-links a {
+    background: #f1f1f1;
+    color: #444;
+}
+
+body.light-mode .social-links a:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+body.light-mode .service-mini-card {
+    background: #fff;
+    color: #444;
+}
+
+body.light-mode .main-footer-badge span {
+    color: #888;
+}
+
+body.light-mode .typed-cursor {
+    color: #212529;
+}

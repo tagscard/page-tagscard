@@ -54,9 +54,6 @@
                     <i class="fas fa-share-alt"></i> Compartilhar Perfil
                 </button>
             </div>
-            <div class="sidebar-logo">
-                <img src="assets/logo.png" alt="Tagscard Logo" style="height: 65px;">
-            </div>
             <div class="manage-link">
                 <a href="login.html">Gerenciar Perfil</a>
             </div>
@@ -239,6 +236,13 @@
                 document.documentElement.style.setProperty('--primary', profile.theme_color);
             }
 
+            // Aplicar Modo Claro/Escuro
+            if (profile.theme_mode === 'light') {
+                document.body.classList.add('light-mode');
+            } else {
+                document.body.classList.remove('light-mode');
+            }
+
             const links = profile.social_links || {};
             if (links.whatsapp) document.getElementById('side-whatsapp').href = `https://wa.me/${links.whatsapp}`;
             if (links.instagram) document.getElementById('side-instagram').href = `https://instagram.com/${links.instagram.replace('@', '')}`;
@@ -263,6 +267,14 @@
 
             if (session && session.user.id === profileId) {
                 document.getElementById('admin-toolbar').style.display = 'flex';
+            }
+
+            // Listener para VCard
+            const vcardBtn = document.getElementById('save-vcard');
+            if (vcardBtn) {
+                vcardBtn.onclick = () => {
+                    if (currentProfile) window.downloadVCard(currentProfile);
+                };
             }
 
             // Incrementar contador de visitas (silenciosamente)
@@ -344,7 +356,8 @@
 
         async function logout() {
             await window.supabaseClient.auth.signOut();
-            window.location.reload();
+            // Ao sair, redirecionar para a landing page ou recarregar sem o modo edição
+            window.location.href = 'index.html';
         }
 
         function generateQRCode() {

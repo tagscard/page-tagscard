@@ -339,7 +339,12 @@
                         }
                     }
 
-                    errorMsg.innerText = "Após a confirmação de pagamento o Painel estará acessível.";
+                    errorMsg.innerHTML = `
+                        <div style="margin-bottom: 15px;">Após a confirmação de pagamento o Painel estará acessível.</div>
+                        <a href="checkout.html?repay=true&email=${email}" style="display: inline-block; padding: 10px 15px; background: #ff6900; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 0.9rem;">
+                            <i class="fas fa-credit-card"></i> Concluir Pagamento
+                        </a>
+                    `;
                     errorMsg.style.display = 'block';
                     btn.innerText = 'Entrar no Painel';
                     btn.disabled = false;
