@@ -45,7 +45,7 @@
                 <li><a href="#about" class="nav-link"><i class="fas fa-user"></i> <span>Sobre</span></a></li>
                 <li><a href="#services" class="nav-link"><i class="fas fa-briefcase"></i> <span>Serviços</span></a></li>
                 <li><a href="#pix" class="nav-link"><i class="fas fa-qrcode"></i> <span>Pagamento</span></a></li>
-                <li><a href="#" id="nav-support" class="nav-link"><i class="fas fa-headset"></i> <span>Suporte</span></a></li>
+                <li id="li-support" style="display: none;"><a href="#" id="nav-support" class="nav-link"><i class="fas fa-headset"></i> <span>Suporte</span></a></li>
             </ul>
         </nav>
 
@@ -293,6 +293,7 @@
 
             if (session && session.user.id === profileId) {
                 document.getElementById('admin-toolbar').style.display = 'flex';
+                document.getElementById('li-support').style.display = 'block';
             }
 
             // Listener para VCard
