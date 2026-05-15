@@ -45,6 +45,7 @@
                 <li><a href="#about" class="nav-link"><i class="fas fa-user"></i> <span>Sobre</span></a></li>
                 <li><a href="#services" class="nav-link"><i class="fas fa-briefcase"></i> <span>Serviços</span></a></li>
                 <li><a href="#pix" class="nav-link"><i class="fas fa-qrcode"></i> <span>Pagamento</span></a></li>
+                <li><a href="#" id="nav-support" class="nav-link"><i class="fas fa-headset"></i> <span>Suporte</span></a></li>
             </ul>
         </nav>
 
@@ -104,14 +105,20 @@
                     <div class="pix-key-box">
                         <span id="pix-key">...</span>
                         <div class="pix-actions">
-                            <button class="copy-btn" onclick="copyPixKey()">
+                            <button class="copy-btn" id="btn-pix-copy" onclick="copyPixKey()">
                                 <i class="far fa-copy"></i> Copiar Chave PIX
+                            </button>
+                            <button class="btn-pix-qr" id="btn-pix-qr" onclick="generateQRCode()" style="display: none;">
+                                <i class="fas fa-qrcode"></i> Gerar QR Code
                             </button>
                         </div>
                     </div>
                     <div id="qrcode-container" style="display:none; text-align:center; margin-top: 20px; padding: 20px; background: white; border-radius: 15px;">
                         <img id="qrcode-img" src="" style="width: 200px; height: 200px;">
-                        <p style="color: black; margin-top: 10px; font-weight: 600;">Aponte a câmera para pagar</p>
+                        <p id="qr-instruction" style="color: black; margin-top: 10px; font-size: 0.8rem; font-weight: 600;">Aponte a câmera para pagar</p>
+                        <button onclick="copyPixPayload()" id="btn-copy-payload" style="display:none; margin-top: 10px; background: #eee; border: none; padding: 8px 15px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; color: #333;">
+                            <i class="fas fa-paste"></i> Copiar PIX Copia e Cola
+                        </button>
                     </div>
                 </div>
             </section>
@@ -156,6 +163,7 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/supabase-client.js"></script>
+    <script src="assets/js/pix-generator.js"></script>
     <script src="assets/js/vcard.js"></script>
     <script src="https://unpkg.com/typed.js@2.0.16/dist/typed.umd.js"></script>
 
@@ -242,12 +250,36 @@
             if (links.instagram) document.getElementById('side-instagram').href = `https://instagram.com/${links.instagram.replace('@', '')}`;
             if (links.linkedin) document.getElementById('side-linkedin').href = links.linkedin.startsWith('http') ? links.linkedin : `https://${links.linkedin}`;
 
-            if (profile.pix_key) document.getElementById('pix-key').innerText = profile.pix_key;
+            // Configurar Link de Suporte
+            const supportLink = document.getElementById('nav-support');
+            if (profile.plan_type === 'premium') {
+                supportLink.href = 'https://wa.me/5511999999999'; // Link WhatsApp Suporte (Placeholder)
+                supportLink.innerHTML = '<i class="fas fa-headset"></i> <span>Suporte VIP</span>';
+                supportLink.title = 'Falar com suporte via WhatsApp';
+            } else {
+                supportLink.href = 'mailto:suporte@tagscard.com.br';
+                supportLink.innerHTML = '<i class="fas fa-envelope"></i> <span>Suporte</span>';
+                supportLink.title = 'Enviar e-mail para o suporte';
+            }
+
+            if (profile.pix_key) {
+                document.getElementById('pix-key').innerText = profile.pix_key;
+                // Mostrar botão QR apenas se for Premium
+                if (profile.plan_type === 'premium') {
+                    document.getElementById('btn-pix-qr').style.display = 'inline-block';
+                }
+            } else {
+                document.getElementById('pix').style.display = 'none';
+            }
 
             if (profile.services) {
                 const servicesContainer = document.querySelector('.services-grid');
                 servicesContainer.innerHTML = ''; 
-                profile.services.forEach(s => {
+                
+                // Limitar serviços se for plano digital (máximo 3)
+                const servicesToShow = profile.plan_type === 'premium' ? profile.services : profile.services.slice(0, 3);
+                
+                servicesToShow.forEach(s => {
                     if (s.name) {
                         const card = document.createElement('div');
                         card.className = 'service-mini-card';
@@ -356,10 +388,20 @@
 
         function generateQRCode() {
             const pixKey = document.getElementById('pix-key').innerText;
+            if (pixKey === '...') return;
+
             const qrContainer = document.getElementById('qrcode-container');
             const qrImg = document.getElementById('qrcode-img');
             const color = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim().replace('#', '');
-            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixKey)}&color=${color}`;
+            
+            // Se for Premium, gera payload legítimo. Se for Digital, apenas a chave.
+            let qrData = pixKey;
+            if (currentProfile && currentProfile.plan_type === 'premium') {
+                qrData = window.PixGenerator.generatePayload(pixKey, currentProfile.name);
+                console.log("PIX Payload Gerado:", qrData);
+            }
+
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}&color=${color}`;
             qrContainer.style.display = qrContainer.style.display === 'none' ? 'block' : 'none';
         }
 
@@ -416,6 +458,14 @@
             const pixKey = document.getElementById('pix-key').innerText;
             navigator.clipboard.writeText(pixKey).then(() => {
                 showToast('Chave PIX copiada!');
+            });
+        }
+
+        function copyPixPayload() {
+            const pixKey = document.getElementById('pix-key').innerText;
+            const payload = window.PixGenerator.generatePayload(pixKey, currentProfile.name);
+            navigator.clipboard.writeText(payload).then(() => {
+                showToast('PIX Copia e Cola copiado!');
             });
         }
 

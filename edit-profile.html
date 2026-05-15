@@ -224,6 +224,48 @@
             color: var(--text-muted);
             font-size: 0.75rem;
         }
+
+        .premium-badge-inline {
+            background: linear-gradient(135deg, #ff6900 0%, #ff9e00 100%);
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .locked-feature {
+            opacity: 0.5;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .locked-feature::after {
+            content: '🔒 Premium';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #333;
+            color: #ff6900;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .plan-status-banner {
+            background: rgba(255, 105, 0, 0.1);
+            border: 1px solid var(--primary);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -238,6 +280,11 @@
             <h2>Configurações</h2>
             <a href="profile.html" id="view-profile-link" class="btn-view"><i class="fas fa-eye"></i> Ver Perfil</a>
         </header>
+
+        <div id="plan-banner" class="plan-status-banner" style="display: none;">
+            <span><i class="fas fa-info-circle"></i> Seu Plano: <strong id="plan-name">Digital</strong></span>
+            <a href="index.html#pricing" id="upgrade-link" style="color: var(--primary); font-weight: 700; text-decoration: none;">Fazer Upgrade 🚀</a>
+        </div>
 
         <form id="edit-form">
             <!-- Identidade Visual -->
@@ -367,13 +414,16 @@
             </div>
 
             <!-- Pagamento -->
-            <div class="card">
+            <div class="card" id="card-pix">
                 <h3><i class="fas fa-qrcode"></i> Pagamento PIX</h3>
                 <div class="toggle-row">
                     <span>Ativar Seção PIX</span>
                     <label class="switch"><input type="checkbox" id="check-pix" checked><span class="slider"></span></label>
                 </div>
                 <input type="text" id="val-pix" placeholder="Sua Chave PIX">
+                <div id="pix-premium-notice" style="display:none; font-size: 0.75rem; color: var(--primary); margin-top: 10px;">
+                    <i class="fas fa-star"></i> O Plano Premium gera QR Codes legítimos automaticamente!
+                </div>
             </div>
 
             <div class="footer-save">
@@ -453,6 +503,24 @@
 
                 // Modo Dark/Light
                 document.getElementById('input-dark-mode').checked = profile.theme_mode !== 'light';
+
+                // Aplicar Limitações de Plano
+                const planBanner = document.getElementById('plan-banner');
+                const planName = document.getElementById('plan-name');
+                const upgradeLink = document.getElementById('upgrade-link');
+                
+                planBanner.style.display = 'flex';
+                if (profile.plan_type === 'premium') {
+                    planName.innerText = 'Premium NFC';
+                    upgradeLink.style.display = 'none';
+                    document.getElementById('pix-premium-notice').style.display = 'block';
+                } else {
+                    planName.innerText = 'Digital (Básico)';
+                    // Bloquear serviços extras e redes sociais
+                    document.getElementById('service-3-name').parentNode.classList.add('locked-feature');
+                    document.getElementById('val-linkedin').parentNode.classList.add('locked-feature');
+                    document.getElementById('check-linkedin').parentNode.parentNode.classList.add('locked-feature');
+                }
             }
         });
 
