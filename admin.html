@@ -159,8 +159,39 @@
             font-weight: 600;
         }
 
-        .badge-pending { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
-        .badge-confirmed { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .badge-pending { background: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid rgba(255,193,7,0.2); }
+        .badge-confirmed { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 1px solid rgba(40,167,69,0.2); }
+
+        .btn-action {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--admin-border);
+            background: rgba(255,255,255,0.05);
+            color: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-action:hover { background: var(--primary-color); border-color: var(--primary-color); }
+        .btn-release { color: #28a745; border-color: rgba(40,167,69,0.3); }
+        .btn-release:hover { background: #28a745; color: white; }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card i {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            font-size: 2.5rem;
+            opacity: 0.1;
+            color: var(--primary-color);
+        }
 
         /* Auth Screen */
         #auth-overlay {
@@ -240,18 +271,22 @@
                     <div class="stat-card">
                         <h4>Total Clientes</h4>
                         <div class="value" id="stat-users">0</div>
+                        <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-card">
                         <h4>Vendas Confirmadas</h4>
                         <div class="value" id="stat-sales">0</div>
+                        <i class="fas fa-shopping-cart"></i>
                     </div>
                     <div class="stat-card">
                         <h4>Total de Visitas</h4>
                         <div class="value" id="stat-visits" style="color: #00d4ff;">0</div>
+                        <i class="fas fa-eye"></i>
                     </div>
                     <div class="stat-card">
                         <h4>Faturamento (Estimado)</h4>
                         <div class="value" id="stat-revenue" style="color: var(--primary-color);">R$ 0</div>
+                        <i class="fas fa-dollar-sign"></i>
                     </div>
                 </div>
 
@@ -272,8 +307,16 @@
             <div id="section-clientes" class="admin-section" style="display: none;">
                 <h1 style="margin-bottom: 30px;">Gerenciamento de Clientes</h1>
                 <div class="table-card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <input type="text" id="search-clientes" placeholder="Buscar cliente por nome ou email..." style="padding: 10px 15px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--admin-border); color: white; width: 300px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px;">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="search-clientes" oninput="filterClients()" placeholder="Buscar nome ou email..." style="padding: 10px 15px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--admin-border); color: white; width: 250px;">
+                            <select id="filter-status" onchange="filterClients()" style="padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--admin-border); color: white;">
+                                <option value="all">Todos Status</option>
+                                <option value="confirmed">Confirmados</option>
+                                <option value="pending">Pendentes</option>
+                            </select>
+                        </div>
+                        <div style="color: #888; font-size: 0.85rem;">Total filtrado: <span id="filtered-count" style="color: white; font-weight: bold;">0</span></div>
                     </div>
                     <table>
                         <thead>
@@ -391,6 +434,8 @@
             document.getElementById(`nav-${sectionId}`).classList.add('active');
         };
 
+        let allUsers = []; // Armazenar globalmente para filtragem rápida
+
         // Carregar Dados
         async function loadDashboardData() {
             const { data: users, error } = await supabaseClient
@@ -398,19 +443,26 @@
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) return;
+            if (error) {
+                console.error("Erro ao buscar usuários:", error);
+                return;
+            }
 
-            // Stats Dashboard
+            allUsers = users;
+            updateStats(users);
+            renderUsersTable(users);
+            renderSalesTable(users);
+            updateFilteredCount(users.length);
+        }
+
+        function updateStats(users) {
             document.getElementById('stat-users').innerText = users.length;
             const confirmedUsers = users.filter(u => u.payment_status === 'confirmed');
-            const pending = users.filter(u => u.payment_status === 'pending').length;
             const totalVisits = users.reduce((acc, u) => acc + (u.visits || 0), 0);
             
             document.getElementById('stat-sales').innerText = confirmedUsers.length;
-            document.getElementById('stat-pending').innerText = pending;
             document.getElementById('stat-visits').innerText = totalVisits.toLocaleString('pt-BR');
 
-            // Faturamento e Vendas
             const revenue = confirmedUsers.reduce((acc, u) => {
                 if (u.plan_type === 'digital') return acc + 49.90;
                 if (u.plan_type === 'premium') return acc + 149.00;
@@ -422,40 +474,113 @@
             document.getElementById('vendas-total-count').innerText = confirmedUsers.length;
             const avg = confirmedUsers.length > 0 ? (revenue / confirmedUsers.length) : 0;
             document.getElementById('vendas-average').innerText = `R$ ${avg.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        }
 
-            // Tabela CLIENTES (Completa)
+        // Renderizar Tabela de Clientes
+        window.renderUsersTable = (users) => {
             const clientesTable = document.getElementById('full-users-table');
-            console.log("Dados recebidos do Supabase:", users); // Log para depuração
-            
             if (!users || users.length === 0) {
-                clientesTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 50px; color: #666;">Nenhum cliente encontrado no banco de dados.</td></tr>';
-            } else {
-                clientesTable.innerHTML = users.map(u => {
-                    try {
-                        const expiration = calculateExpiration(u.created_at || new Date());
-                        const address = u.address_street ? `${u.address_street}, ${u.address_number} - ${u.address_city}` : '<span style="color: #555;">Somente Digital</span>';
-                        
-                        return `
-                        <tr>
-                            <td>
-                                <div style="font-weight: 600;">${u.name || 'Sem nome'}</div>
-                                <div style="font-size: 0.75rem; color: #666;">${u.email || u.phone || 'Sem contato'}</div>
-                            </td>
-                            <td>${(u.plan_type || 'N/A').toUpperCase()}</td>
-                            <td style="${expiration.style}">${u.payment_status === 'confirmed' ? (expiration.days + ' dias') : '-'}</td>
-                            <td style="font-size: 0.8rem;">${address}</td>
-                            <td>
-                                <a href="https://wa.me/55${u.phone || ''}?text=Olá ${u.name || ''}, sua renovação do Tagscard está próxima!" target="_blank" style="color: #25d366; margin-right: 10px;"><i class="fab fa-whatsapp"></i></a>
-                                <a href="profile.html?id=${u.id}" target="_blank" style="color: var(--primary-color);"><i class="fas fa-external-link-alt"></i></a>
-                            </td>
-                        </tr>
-                        `;
-                    } catch (e) {
-                        console.error("Erro ao renderizar linha do cliente:", u, e);
-                        return '';
-                    }
-                }).join('');
+                clientesTable.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 50px; color: #666;">Nenhum cliente corresponde aos filtros.</td></tr>';
+                return;
             }
+
+            clientesTable.innerHTML = users.map(u => {
+                const expiration = calculateExpiration(u.created_at || new Date());
+                const address = u.address_street ? `${u.address_street}, ${u.address_number} - ${u.address_city}` : '<span style="color: #555;">Digital</span>';
+                const statusBadge = u.payment_status === 'confirmed' ? '<span class="badge badge-confirmed">ATIVO</span>' : '<span class="badge badge-pending">PENDENTE</span>';
+                
+                return `
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <img src="${u.avatar_url || 'https://ui-avatars.com/api/?name=' + u.name}" style="width: 32px; height: 32px; border-radius: 50%;">
+                            <div>
+                                <div style="font-weight: 600;">${u.name || 'Sem nome'}</div>
+                                <div style="font-size: 0.75rem; color: #888;">${u.email || 'Sem e-mail'}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><div style="font-size: 0.75rem; color: #888;">${u.plan_type?.toUpperCase() || 'N/A'}</div>${statusBadge}</td>
+                    <td style="${expiration.style}">${u.payment_status === 'confirmed' ? (expiration.days + ' dias') : '-'}</td>
+                    <td style="font-size: 0.8rem; max-width: 200px;">${address}</td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            <a href="profile.html?id=${u.id}" target="_blank" class="btn-action" title="Ver Perfil"><i class="fas fa-eye"></i></a>
+                            ${u.payment_status === 'pending' ? `<button onclick="releaseManual('${u.id}', '${u.name}')" class="btn-action btn-release" title="Liberar Manual"><i class="fas fa-check-double"></i></button>` : ''}
+                            <button onclick="deleteUser('${u.id}', '${u.name}')" class="btn-action" style="color: #ff4444;" title="Excluir"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+                `;
+            }).join('');
+        };
+
+        // Filtragem em Tempo Real
+        window.filterClients = () => {
+            const query = document.getElementById('search-clientes').value.toLowerCase();
+            const status = document.getElementById('filter-status').value;
+            
+            const filtered = allUsers.filter(u => {
+                const matchesSearch = (u.name?.toLowerCase().includes(query) || u.email?.toLowerCase().includes(query));
+                const matchesStatus = status === 'all' || u.payment_status === status;
+                return matchesSearch && matchesStatus;
+            });
+            
+            renderUsersTable(filtered);
+            updateFilteredCount(filtered.length);
+        };
+
+        function updateFilteredCount(count) {
+            document.getElementById('filtered-count').innerText = count;
+        }
+
+        // Ação: Liberar Manualmente
+        window.releaseManual = async (id, name) => {
+            if (!confirm(`Deseja liberar o acesso manualmente para ${name}?`)) return;
+            
+            const { error } = await supabaseClient
+                .from('profiles')
+                .update({ payment_status: 'confirmed' })
+                .eq('id', id);
+            
+            if (error) alert('Erro ao liberar: ' + error.message);
+            else {
+                alert('Acesso liberado com sucesso!');
+                loadDashboardData();
+            }
+        };
+
+        // Ação: Excluir Usuário
+        window.deleteUser = async (id, name) => {
+            if (!confirm(`ATENÇÃO: Deseja excluir permanentemente o perfil de ${name}? Esta ação não pode ser desfeita.`)) return;
+            
+            const { error } = await supabaseClient
+                .from('profiles')
+                .delete()
+                .eq('id', id);
+            
+            if (error) alert('Erro ao excluir: ' + error.message);
+            else {
+                alert('Usuário removido com sucesso.');
+                loadDashboardData();
+            }
+        };
+
+        function renderSalesTable(users) {
+            const confirmedUsers = users.filter(u => u.payment_status === 'confirmed');
+            const salesTable = document.getElementById('sales-table');
+            salesTable.innerHTML = confirmedUsers.map(u => {
+                const value = u.plan_type === 'digital' ? 49.90 : (u.plan_type === 'premium' ? 149.00 : 399.00);
+                return `
+                <tr>
+                    <td>${u.name}</td>
+                    <td>R$ ${value.toFixed(2)}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
+                    <td><span class="badge badge-confirmed">Pago</span></td>
+                </tr>
+                `;
+            }).join('');
+        }
 
             // Tabela VENDAS
             const salesTable = document.getElementById('sales-table');
