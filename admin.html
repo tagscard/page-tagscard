@@ -371,44 +371,52 @@
 
         const ADMIN_EMAIL = 'admin@tagscard.com.br'.toLowerCase();
 
-        // Verificar Sessão
-        async function checkSession() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            console.log("Sessão atual:", session);
-            if (session && session.user.email.toLowerCase() === ADMIN_EMAIL) {
-                document.getElementById('auth-overlay').style.display = 'none';
-                loadDashboardData();
-            }
-        }
-        checkSession();
+        // 1. Configuração Inicial e Bloqueio de Reload
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
 
-        // Login Admin
-        document.getElementById('login-form').onsubmit = async (e) => {
+        loginForm.onsubmit = async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
             const email = document.getElementById('admin-email').value.trim().toLowerCase();
             const password = document.getElementById('admin-password').value;
             
             btn.innerText = 'Verificando...';
+            loginError.style.display = 'none';
 
             if (email !== ADMIN_EMAIL) {
-                document.getElementById('login-error').innerText = 'E-mail não autorizado para este painel.';
-                document.getElementById('login-error').style.display = 'block';
+                loginError.innerText = 'E-mail não autorizado para este painel.';
+                loginError.style.display = 'block';
                 btn.innerText = 'Entrar no Dashboard';
                 return;
             }
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            
-            if (error) {
-                document.getElementById('login-error').innerText = "Erro: " + error.message;
-                document.getElementById('login-error').style.display = 'block';
-                btn.innerText = 'Entrar no Dashboard';
-            } else {
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                
                 console.log("Login realizado com sucesso!");
                 window.location.reload();
+            } catch (err) {
+                loginError.innerText = "Erro: " + err.message;
+                loginError.style.display = 'block';
+                btn.innerText = 'Entrar no Dashboard';
             }
         };
+
+        // 2. Verificar Sessão
+        async function checkSession() {
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user.email.toLowerCase() === ADMIN_EMAIL) {
+                    document.getElementById('auth-overlay').style.display = 'none';
+                    loadDashboardData();
+                }
+            } catch (e) {
+                console.error("Erro na verificação de sessão:", e);
+            }
+        }
+        checkSession();
 
         // Função auxiliar de Expiração
         function calculateExpiration(createdAt) {
