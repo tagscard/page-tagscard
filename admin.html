@@ -230,7 +230,7 @@
             <form id="login-form">
                 <input type="email" id="admin-email" placeholder="E-mail Admin" required style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--admin-border); color: white; margin-bottom: 15px;">
                 <input type="password" id="admin-password" placeholder="Senha" required style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--admin-border); color: white; margin-bottom: 25px;">
-                <button type="submit" class="btn" style="width: 100%; background: var(--primary-color); color: white; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600;">Entrar no Dashboard</button>
+                <button type="button" onclick="handleLogin()" id="btn-login" style="width: 100%; background: var(--primary-color); color: white; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600;">Entrar no Dashboard</button>
             </form>
             <p id="login-error" style="color: #ff4444; margin-top: 15px; display: none; font-size: 0.85rem;"></p>
         </div>
@@ -363,31 +363,31 @@
         </main>
     </div>
 
-    <script type="module">
-        import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
-        
-        // Inicializar Supabase garantindo compatibilidade com o CDN global
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+    <script>
+        // Configurações Globais (Hardcoded para evitar falha de import de módulo)
+        const SUPABASE_URL = 'https://yygfvcnryefyjifzyepp.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_4d4ZrjhFm4p26zWrwaUnlw_keSmeWzi';
         const ADMIN_EMAIL = 'admin@tagscard.com.br'.toLowerCase();
 
-        // 1. Configuração Inicial e Bloqueio de Reload
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
+        // Inicializar Supabase
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        loginForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
+        // 1. Função de Login Manual (Garante que não dê reload)
+        window.handleLogin = async () => {
+            const btn = document.getElementById('btn-login');
+            const loginError = document.getElementById('login-error');
             const email = document.getElementById('admin-email').value.trim().toLowerCase();
             const password = document.getElementById('admin-password').value;
             
             btn.innerText = 'Verificando...';
+            btn.disabled = true;
             loginError.style.display = 'none';
 
             if (email !== ADMIN_EMAIL) {
                 loginError.innerText = 'E-mail não autorizado para este painel.';
                 loginError.style.display = 'block';
                 btn.innerText = 'Entrar no Dashboard';
+                btn.disabled = false;
                 return;
             }
 
@@ -401,6 +401,7 @@
                 loginError.innerText = "Erro: " + err.message;
                 loginError.style.display = 'block';
                 btn.innerText = 'Entrar no Dashboard';
+                btn.disabled = false;
             }
         };
 
